@@ -1,4 +1,4 @@
-module ar_fifo
+module r_fifo
 //Parameters
 #(
     parameter PENDING_DEPTH = 4,
