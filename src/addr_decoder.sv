@@ -1,13 +1,14 @@
-`include "axi_define.svh"
-
 module addr_decoder
 #(
+    //AXI Setup
+    parameter ADDR_WIDTH = 32,
+
     parameter slaves = 2,
-    parameter [`AXI_ADDR_BITS-1:0] address_map_base [0:slaves-1] = {`AXI_ADDR_BITS'h0000_0000, `AXI_ADDR_BITS'h1000_0000},
-    parameter [`AXI_ADDR_BITS-1:0] address_map_end [0:slaves-1] = {`AXI_ADDR_BITS'h0fff_ffff, `AXI_ADDR_BITS'h1fff_ffff}
+    parameter [ADDR_WIDTH-1:0] address_map_base [0:slaves-1] = {'h0000_0000, 'h1000_0000},
+    parameter [ADDR_WIDTH-1:0] address_map_end [0:slaves-1] = {'h0fff_ffff, 'h1fff_ffff}
 )
 (
-    input [`AXI_ADDR_BITS-1:0] addr,
+    input [ADDR_WIDTH-1:0] addr,
     output reg [$clog2(slaves)-1:0] dest_slave
 );
 //Signals
