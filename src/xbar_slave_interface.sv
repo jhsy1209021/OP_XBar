@@ -82,11 +82,11 @@ module xbar_slave_interface
     
     ////////// To Outer Master //////////
     //Read Address Channel
-    input reg [ID_WIDTH-1:0] ARID_M,
-	input reg [ADDR_WIDTH-1:0] ARADDR_M,
-	input reg [LEN_WIDTH-1:0] ARLEN_M,
-	input reg [SIZE_WIDTH-1:0] ARSIZE_M,
-	input reg [1:0] ARBURST_M,
+    input [ID_WIDTH-1:0] ARID_M,
+	input [ADDR_WIDTH-1:0] ARADDR_M,
+	input [LEN_WIDTH-1:0] ARLEN_M,
+	input [SIZE_WIDTH-1:0] ARSIZE_M,
+	input [1:0] ARBURST_M,
 	input ARVALID_M,
 	output ARREADY_M,
 
@@ -96,7 +96,7 @@ module xbar_slave_interface
 	output [1:0] RRESP_M,
 	output RLAST_M,
 	output RVALID_M,
-	input reg RREADY_M,
+	input RREADY_M,
 
     //Write Address Channel
 	input [ID_WIDTH-1:0] AWID_M,
@@ -108,17 +108,17 @@ module xbar_slave_interface
 	output AWREADY_M,
 	
 	//Write Data Channel
-	input reg [DATA_WIDTH-1:0] WDATA_M,
-	input reg [STRB_WIDTH-1:0] WSTRB_M,
-	input reg WLAST_M,
-	input reg WVALID_M,
+	input [DATA_WIDTH-1:0] WDATA_M,
+	input [STRB_WIDTH-1:0] WSTRB_M,
+	input WLAST_M,
+	input WVALID_M,
 	output WREADY_M,
 	
 	//Write Response Channel
 	output [ID_WIDTH-1:0] BID_M,
 	output [1:0] BRESP_M,
 	output BVALID_M,
-	input reg BREADY_M
+	input BREADY_M
 );
 ////////// Registers //////////
 reg [$clog2(slaves):0] current_write_op;
