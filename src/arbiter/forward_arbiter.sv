@@ -13,8 +13,11 @@ module forward_arbiter
     input ARESETn,
 
     //Master Request FIFO Info
-    input [masters-1:0] master_fifo_empty,
+    input master_fifo_empty [masters-1:0],
     input [$clog2(slaves)-1:0] master_slave_dest [0:masters-1],
+
+    //Slave Request FIFO Info
+    input slave_fifo_full,
 
     //Granted Master
     output [$clog2(masters)-1:0] grant_master_number
@@ -59,7 +62,7 @@ always@(posedge ACLK) begin
     end
 
     else begin
-        if(~is_onehot_request_vec) begin
+        if((~is_onehot_request_vec) & (~slave_fifo_full)) begin
             round_robin_priority_reg[0] <= round_robin_priority_reg[masters-1];
             for(int i = 1; i < masters; i++)
                 round_robin_priority_reg[i] <= round_robin_priority_reg[i-1];

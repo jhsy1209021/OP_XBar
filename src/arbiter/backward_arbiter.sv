@@ -10,8 +10,11 @@ module backward_arbiter
     input ARESETn,
 
     //Slaves Return FIFO Info
-    input [slaves-1:0] slave_fifo_empty,
+    input slave_fifo_empty [slaves-1:0],
     input [$clog2(masters)-1:0] slave_master_dest [0:slaves-1],
+
+    //Master return FIFO Info
+    input master_fifo_full,
 
     //Grant Slave
     output [$clog2(slaves)-1:0] grant_slave_number
@@ -56,7 +59,7 @@ always@(posedge ACLK) begin
     end
 
     else begin
-        if(~is_onehot_return_vec) begin
+        if((~is_onehot_return_vec) & (~master_fifo_full)) begin
             round_robin_priority_reg[0] <= round_robin_priority_reg[slaves-1];
             for(int i = 1; i < slaves; i++)
                 round_robin_priority_reg[i] <= round_robin_priority_reg[i-1];
