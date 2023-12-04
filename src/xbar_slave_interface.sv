@@ -293,7 +293,7 @@ addr_decoder #(
     .slaves(slaves),
     .address_map_base(address_map_base),
     .address_map_end(address_map_end)
-) master_read_req_addr_decoder (
+) master_read_addr_addr_decoder (
     .addr(ARADDR),
     .dest_slave(read_addr_forward_dest_slave)
 );
@@ -305,7 +305,7 @@ addr_decoder #(
     .slaves(slaves),
     .address_map_base(address_map_base),
     .address_map_end(address_map_end)
-) master_write_req_addr_decoder (
+) master_write_addr_addr_decoder (
     .addr(AWADDR),
     .dest_slave(write_addr_forward_dest_slave)
 );
@@ -352,6 +352,7 @@ backward_arbiter #(
 
 ////////// Registers //////////
 //current_write_op[$clog2(slaves):1] --> current slaves that occupied the write data channel
+assign write_data_forward_dest_slave = current_write_op[$clog2(slaves):1];
 always@(posedge ACLK) begin
     if(~ARESETn) begin
         current_write_op[$clog2(slaves):1] <= {$clog2(slaves){1'b0}};
