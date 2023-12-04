@@ -24,22 +24,18 @@ module xbar_slave_interface
     input ARESETn,
 
     ////////// Inter-XBar Communication //////////
-    //Read Data Channel Payload
-    input [ID_WIDTH-1:0]        RID,
-    input [DATA_WIDTH-1:0]      RDATA,
-    input [1:0]                 RRESP,
-    input                       RLAST,
-
-    //Write Response Channel Payload
-    input [ID_WIDTH-1:0]        BID,
-    input [1:0]                 BRESP,
-
     //Read Address Channel Payload
     output [ID_WIDTH-1:0]         ARID,
     output [ADDR_WIDTH-1:0]       ARADDR,
     output [LEN_WIDTH-1:0]        ARLEN,
     output [SIZE_WIDTH-1:0]       ARSIZE,
     output [1:0]                  ARBURST,
+
+    //Read Data Channel Payload
+    input [ID_WIDTH-1:0]        RID,
+    input [DATA_WIDTH-1:0]      RDATA,
+    input [1:0]                 RRESP,
+    input                       RLAST,
 
     //Write Address Channel Payload
     output [ID_WIDTH-1:0]         AWID,
@@ -53,22 +49,20 @@ module xbar_slave_interface
     output [STRB_WIDTH-1:0]      WSTRB,
     output                       WLAST,
 
-    //Read Data Channel Returning info
-    input slave_read_data_fifo_empty [slaves-1:0],
-    input [$clog2(masters)-1:0] read_data_return_dest_master [slaves-1:0],
-    output master_read_data_fifo_full,
-    output [$clog2(slaves)-1:0] grant_read_data_return_slave,
-
-    //Write Resp Channel Returning info
-    input slave_write_resp_fifo_empty [slaves-1:0],
-    input [$clog2(masters)-1:0] write_resp_return_dest_master [slaves-1:0],
-    output master_write_resp_fifo_full,
-    output [$clog2(slaves)-1:0] grant_write_resp_return_slave,
+    //Write Response Channel Payload
+    input [ID_WIDTH-1:0]        BID,
+    input [1:0]                 BRESP,
 
     //Read Address Channel forwarding info
     input slave_read_addr_fifo_full,
     output master_read_addr_fifo_empty,
     output [$clog2(slaves)-1:0] read_addr_forward_dest_slave,
+
+    //Read Data Channel Returning info
+    input slave_read_data_fifo_empty [slaves-1:0],
+    input [$clog2(masters)-1:0] read_data_return_dest_master [slaves-1:0],
+    output master_read_data_fifo_full,
+    output [$clog2(slaves)-1:0] grant_read_data_return_slave,
 
     //Write Address Channel forwarding info
     input slave_write_addr_fifo_full,
@@ -80,6 +74,12 @@ module xbar_slave_interface
     output master_write_data_fifo_empty,
     output [$clog2(slaves)-1:0] write_data_forward_dest_slave,
 
+    //Write Resp Channel Returning info
+    input slave_write_resp_fifo_empty [slaves-1:0],
+    input [$clog2(masters)-1:0] write_resp_return_dest_master [slaves-1:0],
+    output master_write_resp_fifo_full,
+    output [$clog2(slaves)-1:0] grant_write_resp_return_slave,
+    
     ////////// To Outer Master //////////
     //Read Address Channel
     input reg [ID_WIDTH-1:0] ARID_M,
