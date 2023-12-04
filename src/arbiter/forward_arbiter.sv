@@ -1,6 +1,3 @@
-`include "onehot_detector.sv"
-`include "grant_number_generator.sv"
-
 module forward_arbiter
 #(
     parameter masters = 2,
