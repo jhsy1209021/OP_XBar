@@ -13,7 +13,7 @@ module forward_arbiter
     input ARESETn,
 
     //Master Request FIFO Info
-    input master_fifo_empty [masters-1:0],
+    input master_fifo_empty [0:masters-1],
     input [$clog2(slaves)-1:0] master_slave_dest [0:masters-1],
 
     //Slave Request FIFO Info

@@ -10,7 +10,7 @@ module backward_arbiter
     input ARESETn,
 
     //Slaves Return FIFO Info
-    input slave_fifo_empty [slaves-1:0],
+    input slave_fifo_empty [0:slaves-1],
     input [$clog2(masters)-1:0] slave_master_dest [0:slaves-1],
 
     //Master return FIFO Info
