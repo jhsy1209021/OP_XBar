@@ -2,7 +2,7 @@ module id_decoder
 #(
     //AXI Setup
     parameter ID_WIDTH = 4,
-    parameter IDS_WIDTH = 8,
+    parameter IDS_WIDTH = 5,
 
     parameter masters = 2,
     parameter slaves = 2
