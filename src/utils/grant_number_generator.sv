@@ -19,7 +19,7 @@ end
 always_comb begin
     for(int i = 0; i < candidate; i++) begin
         if(rearrage_request_vec[i] == 1'b1) begin
-            grant_number = i[$clog2(candidate)-1:0];
+            grant_number = priority_array[i[$clog2(candidate)-1:0]];
             break;
         end
 
