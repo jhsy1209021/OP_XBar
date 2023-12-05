@@ -1,5 +1,6 @@
 `ifndef XBAR_MASTER_INTERFACE
 `define XBAR_MASTER_INTERFACE
+    `include "xbar_master_interface.sv"
     `include "forward_arbiter.sv"
     `include "id_decoder.sv"
 

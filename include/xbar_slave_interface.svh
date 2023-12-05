@@ -1,5 +1,6 @@
 `ifndef XBAR_SLAVE_INTERFACE
 `define XBAR_SLAVE_INTERFACE
+    `include "xbar_slave_interface.sv"
     `include "backward_arbiter.sv"
     `include "addr_decoder.sv"
 
