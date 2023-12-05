@@ -32,7 +32,7 @@ module r_fifo
     output                       front_RLAST
 );
 //Registers
-reg [$clog2(pending_depth)-1:0] front, back, counter;
+reg [$clog2(pending_depth)-1:0] front, back;
 reg [ID_WIDTH-1:0] RID_reg [0:pending_depth-1];
 reg [DATA_WIDTH-1:0] RDATA_reg [0:pending_depth-1];
 reg [1:0] RRESP_reg [0:pending_depth-1];
@@ -50,13 +50,11 @@ always@(posedge ACLK) begin
     end
 
     else begin
-        if(push) begin
-            if(counter != {$clog2(pending_depth){1'b1}}) begin
-                RID_reg[back] <= RID;
-                RDATA_reg[back] <= RDATA;
-                RRESP_reg[back] <= RRESP;
-                RLAST_reg[back] <= RLAST;
-            end
+        if(push & ~full) begin
+            RID_reg[back] <= RID;
+            RDATA_reg[back] <= RDATA;
+            RRESP_reg[back] <= RRESP;
+            RLAST_reg[back] <= RLAST;
         end
     end
 end
@@ -66,9 +64,8 @@ always@(posedge ACLK) begin
     if(~ARESETn)
         front <= {$clog2(pending_depth){1'b0}};
     else begin
-        if(pop) begin
-            if(counter != {$clog2(pending_depth){1'b0}})
-                front <= front + 1;
+        if(pop & ~empty) begin
+            front <= front + 1;
         end
     end
 end
@@ -78,29 +75,8 @@ always@(posedge ACLK) begin
     if(~ARESETn)
         back <= {$clog2(pending_depth){1'b0}};
     else begin
-        if(push) begin
-            if(counter != {$clog2(pending_depth){1'b1}})
-                back <= back + 1;
-        end
-    end
-end
-
-//counter
-always@(posedge ACLK) begin
-    if(~ARESETn)
-        counter <= {$clog2(pending_depth){1'b0}};
-    else begin
-        priority if(push & pop)
-            counter <= counter;
-        
-        else if(push) begin
-            if(counter != {$clog2(pending_depth){1'b1}})
-                counter <= counter + 1;
-        end
-        
-        else if(pop) begin
-            if(counter != {$clog2(pending_depth){1'b0}})
-                counter <= counter - 1;
+        if(push & ~full) begin
+            back <= back + 1;
         end
     end
 end
@@ -110,6 +86,6 @@ assign front_RID = RID_reg[front];
 assign front_RDATA = RDATA_reg[front];
 assign front_RRESP = RRESP_reg[front];
 assign front_RLAST = RLAST_reg[front];
-assign full = (counter == {$clog2(pending_depth){1'b1}});
-assign empty = (counter == {$clog2(pending_depth){1'b0}});
+assign full = ((back + 1) == front);
+assign empty = (back == front);
 endmodule

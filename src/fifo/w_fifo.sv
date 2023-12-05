@@ -30,7 +30,7 @@ module w_fifo
     output                       front_WLAST
 );
 //Registers
-reg [$clog2(pending_depth)-1:0] front, back, counter;
+reg [$clog2(pending_depth)-1:0] front, back;
 reg [DATA_WIDTH-1:0] WDATA_reg [0:pending_depth-1];
 reg [STRB_WIDTH-1:0] WSTRB_reg [0:pending_depth-1];
 reg WLAST_reg [0:pending_depth-1];
@@ -46,12 +46,10 @@ always@(posedge ACLK) begin
     end
 
     else begin
-        if(push) begin
-            if(counter != {$clog2(pending_depth){1'b1}}) begin
-                WDATA_reg[back] <= WDATA;
-                WSTRB_reg[back] <= WSTRB;
-                WLAST_reg[back] <= WLAST;
-            end
+        if(push & ~full) begin
+            WDATA_reg[back] <= WDATA;
+            WSTRB_reg[back] <= WSTRB;
+            WLAST_reg[back] <= WLAST;
         end
     end
 end
@@ -61,9 +59,8 @@ always@(posedge ACLK) begin
     if(~ARESETn)
         front <= {$clog2(pending_depth){1'b0}};
     else begin
-        if(pop) begin
-            if(counter != {$clog2(pending_depth){1'b0}})
-                front <= front + 1;
+        if(pop & ~empty) begin
+            front <= front + 1;
         end
     end
 end
@@ -73,29 +70,8 @@ always@(posedge ACLK) begin
     if(~ARESETn)
         back <= {$clog2(pending_depth){1'b0}};
     else begin
-        if(push) begin
-            if(counter != {$clog2(pending_depth){1'b1}})
-                back <= back + 1;
-        end
-    end
-end
-
-//counter
-always@(posedge ACLK) begin
-    if(~ARESETn)
-        counter <= {$clog2(pending_depth){1'b0}};
-    else begin
-        if(push & pop)
-            counter <= counter;
-        
-        else if(push) begin
-            if(counter != {$clog2(pending_depth){1'b1}})
-                counter <= counter + 1;
-        end
-        
-        else if(pop) begin
-            if(counter != {$clog2(pending_depth){1'b0}})
-                counter <= counter - 1;
+        if(push & ~full) begin
+            back <= back + 1;
         end
     end
 end
@@ -104,6 +80,6 @@ end
 assign front_WDATA = WDATA_reg[front];
 assign front_WSTRB = WSTRB_reg[front];
 assign front_WLAST = WLAST_reg[front];
-assign full = (counter == {$clog2(pending_depth){1'b1}});
-assign empty = (counter == {$clog2(pending_depth){1'b0}});
+assign full = ((back + 1) == front);
+assign empty = (back == front);
 endmodule

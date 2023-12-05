@@ -36,7 +36,7 @@ module aw_fifo
     output [1:0]                front_AWBURST
 );
 //Registers
-reg [$clog2(pending_depth)-1:0] front, back, counter;
+reg [$clog2(pending_depth)-1:0] front, back;
 reg [ID_WIDTH-1:0] AWID_reg [0:pending_depth-1];
 reg [ADDR_WIDTH-1:0] AWADDR_reg [0:pending_depth-1];
 reg [LEN_WIDTH-1:0] AWLEN_reg [0:pending_depth-1];
@@ -56,14 +56,12 @@ always@(posedge ACLK) begin
     end
 
     else begin
-        if(push) begin
-            if(counter != {$clog2(pending_depth){1'b1}}) begin
-                AWID_reg[back] <= AWID;
-                AWADDR_reg[back] <= AWADDR;
-                AWLEN_reg[back] <= AWLEN;
-                AWSIZE_reg[back] <= AWSIZE;
-                AWBURST_reg[back] <= AWBURST;
-            end
+        if(push & ~full) begin
+            AWID_reg[back] <= AWID;
+            AWADDR_reg[back] <= AWADDR;
+            AWLEN_reg[back] <= AWLEN;
+            AWSIZE_reg[back] <= AWSIZE;
+            AWBURST_reg[back] <= AWBURST;
         end
     end
 end
@@ -73,9 +71,8 @@ always@(posedge ACLK) begin
     if(~ARESETn)
         front <= {$clog2(pending_depth){1'b0}};
     else begin
-        if(pop) begin
-            if(counter != {$clog2(pending_depth){1'b0}})
-                front <= front + 1;
+        if(pop & ~empty) begin
+            front <= front + 1;
         end
     end
 end
@@ -85,29 +82,8 @@ always@(posedge ACLK) begin
     if(~ARESETn)
         back <= {$clog2(pending_depth){1'b0}};
     else begin
-        if(push) begin
-            if(counter != {$clog2(pending_depth){1'b1}})
-                back <= back + 1;
-        end
-    end
-end
-
-//counter
-always@(posedge ACLK) begin
-    if(~ARESETn)
-        counter <= {$clog2(pending_depth){1'b0}};
-    else begin
-        if(push & pop)
-            counter <= counter;
-        
-        else if(push) begin
-            if(counter != {$clog2(pending_depth){1'b1}})
-                counter <= counter + 1;
-        end
-        
-        else if(pop) begin
-            if(counter != {$clog2(pending_depth){1'b0}})
-                counter <= counter - 1;
+        if(push & ~full) begin
+            back <= back + 1;
         end
     end
 end
@@ -118,6 +94,6 @@ assign front_AWADDR = AWADDR_reg[front];
 assign front_AWLEN = AWLEN_reg[front];
 assign front_AWSIZE = AWSIZE_reg[front];
 assign front_AWBURST = AWBURST_reg[front];
-assign full = (counter == {$clog2(pending_depth){1'b1}});
-assign empty = (counter == {$clog2(pending_depth){1'b0}});
+assign full = ((back + 1) == front);
+assign empty = (back == front);
 endmodule
