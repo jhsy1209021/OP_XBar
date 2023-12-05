@@ -4,3 +4,6 @@
 #Design Vision
 .synopsys_dc.setup
 syn/
+
+#script environment
+/build
