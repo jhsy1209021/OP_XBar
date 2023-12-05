@@ -1,5 +1,3 @@
-`include "xbar.svh"
-
 module xbar
 #(
     //AXI Setup
