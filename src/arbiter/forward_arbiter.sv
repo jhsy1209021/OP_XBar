@@ -17,6 +17,7 @@ module forward_arbiter
     input slave_fifo_full,
 
     //Granted Master
+    output push_to_fifo,
     output [$clog2(masters)-1:0] grant_master_number
 );
 
@@ -77,4 +78,7 @@ grant_number_generator
     .grant_number(grant_master_number)
 );
 
+//Other Ports
+//Push to fifo
+assign push_to_fifo = (|confirm_request_to_me);
 endmodule

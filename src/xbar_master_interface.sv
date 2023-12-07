@@ -123,8 +123,10 @@ reg [$clog2(masters):0] current_write_op;
 
 ////////// Signals //////////
 //ar_fifo
+wire read_addr_push_to_fifo;
 wire slave_read_addr_fifo_empty;
 //aw_fifo
+wire write_addr_push_to_fifo;
 wire slave_write_addr_fifo_empty;
 wire _slave_write_addr_fifo_full;
 //r_fifo
@@ -158,7 +160,7 @@ ar_fifo#(
     .ARBURST(ARBURST),
 
     //FIFO Control
-    .push(~master_read_addr_fifo_empty[grant_read_addr_forward_master]),
+    .push((~master_read_addr_fifo_empty[grant_read_addr_forward_master]) & read_addr_push_to_fifo),
     .pop(ARREADY_S),
     .full(slave_read_addr_fifo_full),
     .empty(slave_read_addr_fifo_empty),
@@ -192,7 +194,7 @@ aw_fifo#(
     .AWBURST(AWBURST),
 
     //FIFO Control
-    .push(~master_write_addr_fifo_empty[grant_write_addr_forward_master]),
+    .push((~master_write_addr_fifo_empty[grant_write_addr_forward_master]) & write_addr_push_to_fifo),
     .pop(AWREADY_S),
     .full(_slave_write_addr_fifo_full),
     .empty(slave_write_addr_fifo_empty),
@@ -252,7 +254,7 @@ w_fifo #(
     .WLAST(WLAST),
 
     //FIFO Control
-    .push(~master_write_data_fifo_empty),
+    .push((~master_write_data_fifo_empty) & current_write_op[0]),
     .pop(WREADY_S),
     .full(_slave_write_data_fifo_full),
     .empty(slave_write_data_fifo_empty),
@@ -326,6 +328,7 @@ forward_arbiter #(
     .master_slave_dest(read_addr_forward_dest_slave),
 
     //Slave Request FIFO Info
+    .push_to_fifo(read_addr_push_to_fifo),
     .slave_fifo_full(slave_read_addr_fifo_full),
 
     //Granted Master
@@ -346,6 +349,7 @@ forward_arbiter #(
     .master_slave_dest(write_addr_forward_dest_slave),
 
     //Slave Request FIFO Info
+    .push_to_fifo(write_addr_push_to_fifo),
     .slave_fifo_full(slave_write_addr_fifo_full),
 
     //Granted Master

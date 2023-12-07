@@ -59,8 +59,8 @@ module xbar_slave_interface
     output [$clog2(slaves)-1:0] read_addr_forward_dest_slave,
 
     //Read Data Channel Returning info
-    input slave_read_data_fifo_empty [slaves-1:0],
-    input [$clog2(masters)-1:0] read_data_return_dest_master [slaves-1:0],
+    input slave_read_data_fifo_empty [0:slaves-1],
+    input [$clog2(masters)-1:0] read_data_return_dest_master [0:slaves-1],
     output master_read_data_fifo_full,
     output [$clog2(slaves)-1:0] grant_read_data_return_slave,
 
@@ -75,8 +75,8 @@ module xbar_slave_interface
     output [$clog2(slaves)-1:0] write_data_forward_dest_slave,
 
     //Write Resp Channel Returning info
-    input slave_write_resp_fifo_empty [slaves-1:0],
-    input [$clog2(masters)-1:0] write_resp_return_dest_master [slaves-1:0],
+    input slave_write_resp_fifo_empty [0:slaves-1],
+    input [$clog2(masters)-1:0] write_resp_return_dest_master [0:slaves-1],
     output master_write_resp_fifo_full,
     output [$clog2(slaves)-1:0] grant_write_resp_return_slave,
     
@@ -130,11 +130,13 @@ wire master_read_addr_fifo_full;
 wire master_write_addr_fifo_full;
 wire _master_write_addr_fifo_empty;
 //r fifo
+wire read_data_push_to_fifo;
 wire master_read_data_fifo_empty;
 //w fifo
 wire master_write_data_fifo_full;
 wire _master_write_data_fifo_empty;
 //b fifo
+wire write_resp_push_to_fifo;
 wire master_write_resp_fifo_empty;
 
 ////////// Module initiate //////////
@@ -222,7 +224,7 @@ r_fifo #(
     .RLAST(RLAST),
 
     //FIFO Control
-    .push(~slave_read_data_fifo_empty[grant_read_data_return_slave]),
+    .push((~slave_read_data_fifo_empty[grant_read_data_return_slave]) & read_data_push_to_fifo),
     .pop(RREADY_M),
     .full(master_read_data_fifo_full),
     .empty(master_read_data_fifo_empty),
@@ -252,7 +254,7 @@ w_fifo #(
 
     //FIFO Control
     .push(WVALID_M),
-    .pop(~slave_write_data_fifo_full),
+    .pop((~slave_write_data_fifo_full) & current_write_op[0]),
     .full(master_write_data_fifo_full),
     .empty(_master_write_data_fifo_empty),
     
@@ -276,7 +278,7 @@ b_fifo #(
     .BRESP(BRESP),
 
     //FIFO Control
-    .push(~slave_write_resp_fifo_empty[grant_write_resp_return_slave]),
+    .push((~slave_write_resp_fifo_empty[grant_write_resp_return_slave]) & write_resp_push_to_fifo),
     .pop(BREADY_M),
     .full(master_write_resp_fifo_full),
     .empty(master_write_resp_fifo_empty),
@@ -327,6 +329,7 @@ backward_arbiter #(
     .master_fifo_full(master_read_data_fifo_full),
 
     //Grant Slave
+    .push_to_fifo(read_data_push_to_fifo),
     .grant_slave_number(grant_read_data_return_slave)
 );
 
@@ -344,6 +347,7 @@ backward_arbiter #(
     .slave_master_dest(write_resp_return_dest_master),
 
     //Master return FIFO Info
+    .push_to_fifo(write_resp_push_to_fifo),
     .master_fifo_full(master_write_resp_fifo_full),
 
     //Grant Slave

@@ -17,6 +17,7 @@ module backward_arbiter
     input master_fifo_full,
 
     //Grant Slave
+    output push_to_fifo,
     output [$clog2(slaves)-1:0] grant_slave_number
 );
 
@@ -77,4 +78,7 @@ grant_number_generator
     .grant_number(grant_slave_number)
 );
 
+//Other Ports
+//Push to fifo
+assign push_to_fifo = (|confirm_return_to_me);
 endmodule

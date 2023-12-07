@@ -32,13 +32,16 @@ end
 
 //There is only one bit overlap.
 //"And" two signals, and the only one "1" is the slave located in
-assign address_located = address_greater_than_base & address_smaller_than_end;
+assign address_located = ~(address_greater_than_base ^ address_smaller_than_end);
 
 //Address Decoder
 always_comb begin
     for(int i = 0; i < slaves; i++) begin
-        if(address_located[i])
+        if(address_located[i]) begin
             dest_slave = i[$clog2(slaves)-1:0];
+            break;
+        end
+        
         else
             dest_slave = 0;
     end
