@@ -5,15 +5,15 @@ module aw_fifo
     parameter ID_WIDTH = 4,
     parameter ADDR_WIDTH = 32,
     parameter LEN_WIDTH = 4,
-    parameter SIZE_WIDTH = 3,
-
-    parameter pending_depth = 4    
+    parameter SIZE_WIDTH = 3
 )
 //Ports
 (
     //Global Signal
-    input ACLK,
-    input ARESETn,
+    input clk_tx,
+    input clk_rx,
+    input nrst_tx,
+    input nrst_rx,
 
     //AXI Ports
     input [ID_WIDTH-1:0]        AWID,
@@ -35,65 +35,23 @@ module aw_fifo
     output [SIZE_WIDTH-1:0]       front_AWSIZE,
     output [1:0]                front_AWBURST
 );
-//Registers
-reg [$clog2(pending_depth)-1:0] front, back;
-reg [ID_WIDTH-1:0] AWID_reg [0:pending_depth-1];
-reg [ADDR_WIDTH-1:0] AWADDR_reg [0:pending_depth-1];
-reg [LEN_WIDTH-1:0] AWLEN_reg [0:pending_depth-1];
-reg [SIZE_WIDTH-1:0] AWSIZE_reg [0:pending_depth-1];
-reg [1:0] AWBURST_reg [0:pending_depth-1];
+//Instantiate async_fifo
+async_fifo_8 #(
+    .DATA_WIDTH(ID_WIDTH + ADDR_WIDTH + LEN_WIDTH + SIZE_WIDTH + 2)
+) async_ar_fifo_8 (
+    //Clock
+    .clk_tx(clk_tx),
+    .clk_rx(clk_rx),
+    //Reset
+    .nrst_tx(nrst_tx),
+    .nrst_rx(nrst_rx),
 
-//Ring Shifter
-always@(posedge ACLK) begin
-    if(~ARESETn) begin
-        for(int i = 0; i < pending_depth; i++) begin
-            AWID_reg[i] <= {ID_WIDTH{1'b0}};
-            AWADDR_reg[i] <= {ADDR_WIDTH{1'b0}};
-            AWLEN_reg[i] <= {LEN_WIDTH{1'b0}};
-            AWSIZE_reg[i] <= {SIZE_WIDTH{1'b0}};
-            AWBURST_reg[i] <= {2{1'b0}};
-        end
-    end
-
-    else begin
-        if(push & ~full) begin
-            AWID_reg[back] <= AWID;
-            AWADDR_reg[back] <= AWADDR;
-            AWLEN_reg[back] <= AWLEN;
-            AWSIZE_reg[back] <= AWSIZE;
-            AWBURST_reg[back] <= AWBURST;
-        end
-    end
-end
-
-//front counter
-always@(posedge ACLK) begin
-    if(~ARESETn)
-        front <= {$clog2(pending_depth){1'b0}};
-    else begin
-        if(pop & ~empty) begin
-            front <= front + {$clog2(pending_depth){1'b1}};
-        end
-    end
-end
-
-//back counter
-always@(posedge ACLK) begin
-    if(~ARESETn)
-        back <= {$clog2(pending_depth){1'b0}};
-    else begin
-        if(push & ~full) begin
-            back <= back + {$clog2(pending_depth){1'b1}};
-        end
-    end
-end
-
-//Assign output
-assign front_AWID = AWID_reg[front];
-assign front_AWADDR = AWADDR_reg[front];
-assign front_AWLEN = AWLEN_reg[front];
-assign front_AWSIZE = AWSIZE_reg[front];
-assign front_AWBURST = AWBURST_reg[front];
-assign full = ((back + {$clog2(pending_depth){1'b1}}) == front);
-assign empty = (back == front);
+    //Data Operation
+    .push_tx(push),
+    .pop_rx(pop),
+    .DI_tx({AWID, AWADDR, AWLEN, AWSIZE, AWBURST}),
+    .DO_rx({front_AWID, front_AWADDR, front_AWLEN, front_AWSIZE, front_AWBURST}),
+    .full_tx(full),
+    .empty_rx(empty)
+);
 endmodule

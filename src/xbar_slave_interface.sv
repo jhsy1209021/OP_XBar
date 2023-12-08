@@ -9,7 +9,6 @@ module xbar_slave_interface
     parameter DATA_WIDTH = 32,
     parameter STRB_WIDTH = 4,
 
-    parameter pending_depth = 8,
     parameter masters = 2,
     parameter slaves = 2,
     parameter i_am_master_number = 0,
@@ -20,6 +19,8 @@ module xbar_slave_interface
     //Global Signal
     input ACLK,
     input ARESETn,
+    input clk_ex_master,
+    input nrst_ex_master,
 
     ////////// Inter-XBar Communication //////////
     //Read Address Channel Payload
@@ -160,15 +161,16 @@ assign master_read_addr_fifo_empty = _master_read_addr_fifo_empty | ar_id_table[
 // Pop when (slave read_addr fifo is no full) & (some slaves grant me) & (some slaves say... "Push this araddr to fifo!!")
 assign master_read_addr_fifo_pop = ~slave_read_addr_fifo_full & some_slaves_read_addr_grant_me & some_slaves_read_addr_push_to_fifo;
 ar_fifo#(
-    .pending_depth(pending_depth),
     .ID_WIDTH(ID_WIDTH),
     .ADDR_WIDTH(ADDR_WIDTH),
     .LEN_WIDTH(LEN_WIDTH),
     .SIZE_WIDTH(SIZE_WIDTH)
 ) master_forward_ar_fifo (
     //Global Signal
-    .ACLK(ACLK),
-    .ARESETn(ARESETn),
+    .clk_tx(clk_ex_master),
+    .clk_rx(ACLK),
+    .nrst_tx(nrst_ex_master),
+    .nrst_rx(ARESETn),
 
     //AXI Ports
     .ARID(ARID_M),
@@ -197,15 +199,16 @@ assign master_write_addr_fifo_empty = (_master_write_addr_fifo_empty | current_w
 //Pop when (slave fifo is not full) & (current_write_op[0] indicates that no write transfer in progress) & (some slaves grant me) & & (some slaves say... "Push this awaddr to fifo!!")
 assign master_write_addr_fifo_pop = (~slave_write_addr_fifo_full & ~current_write_op[0] & some_slaves_write_addr_grant_me & some_slaves_write_addr_push_to_fifo);
 aw_fifo#(
-    .pending_depth(pending_depth),
     .ID_WIDTH(ID_WIDTH),
     .ADDR_WIDTH(ADDR_WIDTH),
     .LEN_WIDTH(LEN_WIDTH),
     .SIZE_WIDTH(SIZE_WIDTH)
 ) master_forward_aw_fifo (
     //Global Signal
-    .ACLK(ACLK),
-    .ARESETn(ARESETn),
+    .clk_tx(clk_ex_master),
+    .clk_rx(ACLK),
+    .nrst_tx(nrst_ex_master),
+    .nrst_rx(ARESETn),
 
     //AXI Ports
     .AWID(AWID_M),
@@ -230,13 +233,14 @@ aw_fifo#(
 
 assign RVALID_M = ~master_read_data_fifo_empty;
 r_fifo #(
-    .pending_depth(pending_depth),
     .ID_WIDTH(ID_WIDTH),
     .DATA_WIDTH(DATA_WIDTH)
 ) slave_return_r_fifo (
     //Global Signal
-    .ACLK(ACLK),
-    .ARESETn(ARESETn),
+    .clk_tx(ACLK),
+    .clk_rx(clk_ex_master),
+    .nrst_tx(ARESETn),
+    .nrst_rx(nrst_ex_master),
 
     //AXI Ports
     .RID(RID),
@@ -261,13 +265,14 @@ assign WREADY_M = ~master_write_data_fifo_full;
 //Block transfer when (master_write_data_fifo is empty) | (currently no write is in progress)
 assign master_write_data_fifo_empty = (_master_write_data_fifo_empty | (~current_write_op[0]));
 w_fifo #(
-    .pending_depth(pending_depth),
     .DATA_WIDTH(DATA_WIDTH),
     .STRB_WIDTH(STRB_WIDTH)
 ) master_forward_w_fifo (
     //Global Signal
-    .ACLK(ACLK),
-    .ARESETn(ARESETn),
+    .clk_tx(clk_ex_master),
+    .clk_rx(ACLK),
+    .nrst_tx(nrst_ex_master),
+    .nrst_rx(ARESETn),
 
     //AXI Ports
     .WDATA(WDATA_M),
@@ -288,12 +293,13 @@ w_fifo #(
 
 assign BVALID_M = ~master_write_resp_fifo_empty;
 b_fifo #(
-    .pending_depth(pending_depth),
     .ID_WIDTH(ID_WIDTH)
 ) slave_return_b_fifo (
     //Global Signal
-    .ACLK(ACLK),
-    .ARESETn(ARESETn),
+    .clk_tx(ACLK),
+    .clk_rx(clk_ex_master),
+    .nrst_tx(ARESETn),
+    .nrst_rx(nrst_ex_master),
 
     //AXI Ports
     .BID(BID),

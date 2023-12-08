@@ -3,15 +3,15 @@ module r_fifo
 #(
     //XBar Setup
     parameter ID_WIDTH = 4,
-    parameter DATA_WIDTH = 32,
-
-    parameter pending_depth = 4
+    parameter DATA_WIDTH = 32
 )
 //Ports
 (
     //Global Signal
-    input ACLK,
-    input ARESETn,
+    input clk_tx,
+    input clk_rx,
+    input nrst_tx,
+    input nrst_rx,
 
     //AXI Ports
     input [ID_WIDTH-1:0]        RID,
@@ -31,61 +31,23 @@ module r_fifo
     output [1:0]                 front_RRESP,
     output                       front_RLAST
 );
-//Registers
-reg [$clog2(pending_depth)-1:0] front, back;
-reg [ID_WIDTH-1:0] RID_reg [0:pending_depth-1];
-reg [DATA_WIDTH-1:0] RDATA_reg [0:pending_depth-1];
-reg [1:0] RRESP_reg [0:pending_depth-1];
-reg RLAST_reg [0:pending_depth-1];
+//Instantiate async_fifo
+async_fifo_8 #(
+    .DATA_WIDTH(ID_WIDTH + DATA_WIDTH + 2 + 1)
+) async_ar_fifo_8 (
+    //Clock
+    .clk_tx(clk_tx),
+    .clk_rx(clk_rx),
+    //Reset
+    .nrst_tx(nrst_tx),
+    .nrst_rx(nrst_rx),
 
-//Ring Shifter
-always@(posedge ACLK) begin
-    if(~ARESETn) begin
-        for(int i = 0; i < pending_depth; i++) begin
-            RID_reg[i] <= {ID_WIDTH{1'b0}};
-            RDATA_reg[i] <= {DATA_WIDTH{1'b0}};
-            RRESP_reg[i] <= 2'b0;
-            RLAST_reg[i] <= 1'b0;
-        end
-    end
-
-    else begin
-        if(push & ~full) begin
-            RID_reg[back] <= RID;
-            RDATA_reg[back] <= RDATA;
-            RRESP_reg[back] <= RRESP;
-            RLAST_reg[back] <= RLAST;
-        end
-    end
-end
-
-//front counter
-always@(posedge ACLK) begin
-    if(~ARESETn)
-        front <= {$clog2(pending_depth){1'b0}};
-    else begin
-        if(pop & ~empty) begin
-            front <= front + {$clog2(pending_depth){1'b1}};
-        end
-    end
-end
-
-//back counter
-always@(posedge ACLK) begin
-    if(~ARESETn)
-        back <= {$clog2(pending_depth){1'b0}};
-    else begin
-        if(push & ~full) begin
-            back <= back + {$clog2(pending_depth){1'b1}};
-        end
-    end
-end
-
-//Assign output
-assign front_RID = RID_reg[front];
-assign front_RDATA = RDATA_reg[front];
-assign front_RRESP = RRESP_reg[front];
-assign front_RLAST = RLAST_reg[front];
-assign full = ((back + {$clog2(pending_depth){1'b1}}) == front);
-assign empty = (back == front);
+    //Data Operation
+    .push_tx(push),
+    .pop_rx(pop),
+    .DI_tx({RID, RDATA, RRESP, RLAST}),
+    .DO_rx({front_RID, front_RDATA, front_RRESP, front_RLAST}),
+    .full_tx(full),
+    .empty_rx(empty)
+);
 endmodule

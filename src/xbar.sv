@@ -9,7 +9,6 @@ module xbar
     parameter DATA_WIDTH = 32,
     parameter STRB_WIDTH = 4,
 
-    parameter pending_depth = 8,
     parameter masters = 2,
     parameter slaves = 2,
     parameter [ADDR_WIDTH-1:0] address_map_base [0:slaves-1] = {'h0000_0000, 'h1000_0000},
@@ -19,6 +18,13 @@ module xbar
     //Global Signal
     input ACLK,
     input ARESETn,
+    
+    //Masters clk & nrst
+    input clk_ex_master [0:masters-1],
+    input nrst_ex_master [0:masters-1],
+    //Slaves clk & nrst
+    input clk_ex_slave [0:slaves-1],
+    input nrst_ex_slave [0:slaves-1],
 
     //To Outer Master Device
     //Read Address Channel
@@ -215,7 +221,6 @@ generate
             .DATA_WIDTH(DATA_WIDTH),
             .STRB_WIDTH(STRB_WIDTH),
 
-            .pending_depth(pending_depth),
             .masters(masters),
             .slaves(slaves),
             .i_am_master_number(number_of_master),
@@ -225,6 +230,8 @@ generate
             //Global Signal
             .ACLK(ACLK),
             .ARESETn(ARESETn),
+            .clk_ex_master(clk_ex_master[number_of_master]),
+            .nrst_ex_master(nrst_ex_master[number_of_master]),
 
             ////////// Inter-XBar Communication //////////
             //Read Address Channel Payload
@@ -346,7 +353,6 @@ generate
             .DATA_WIDTH(DATA_WIDTH),
             .STRB_WIDTH(STRB_WIDTH),
 
-            .pending_depth(pending_depth),
             .masters(masters),
             .slaves(slaves),
             .i_am_slave_number(number_of_slave)
@@ -354,6 +360,8 @@ generate
             //Global Signal
             .ACLK(ACLK),
             .ARESETn(ARESETn),
+            .clk_ex_slave(clk_ex_slave[number_of_slave]),
+            .nrst_ex_slave(nrst_ex_slave[number_of_slave]),
 
             ////////// Inter-XBar Communication //////////
             //Read Address Channel Payload

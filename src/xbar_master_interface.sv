@@ -9,7 +9,6 @@ module xbar_master_interface
     parameter DATA_WIDTH = 32,
     parameter STRB_WIDTH = 4,
 
-    parameter pending_depth = 8,
     parameter masters = 2,
     parameter slaves = 2,
     parameter i_am_slave_number = 0
@@ -18,6 +17,8 @@ module xbar_master_interface
     //Global Signal
     input ACLK,
     input ARESETn,
+    input clk_ex_slave,
+    input nrst_ex_slave,
 
     ////////// Inter-XBar Communication //////////
     //Read Address Channel Payload
@@ -153,15 +154,16 @@ wire some_masters_write_resp_push_to_fifo;
 ////////// Module initiate //////////
 assign ARVALID_S = ~slave_read_addr_fifo_empty;
 ar_fifo#(
-    .pending_depth(pending_depth),
     .ID_WIDTH(IDS_WIDTH),
     .ADDR_WIDTH(ADDR_WIDTH),
     .LEN_WIDTH(LEN_WIDTH),
     .SIZE_WIDTH(SIZE_WIDTH)
 ) master_forward_ar_fifo (
     //Global Signal
-    .ACLK(ACLK),
-    .ARESETn(ARESETn),
+    .clk_tx(ACLK),
+    .clk_rx(clk_ex_slave),
+    .nrst_tx(ARESETn),
+    .nrst_rx(nrst_ex_slave),
 
     //AXI Ports
     .ARID({{IDS_WIDTH - ID_WIDTH - $clog2(masters){1'b0}}, grant_read_addr_forward_master[$clog2(masters)-1:0], ARID}),
@@ -187,15 +189,16 @@ ar_fifo#(
 assign AWVALID_S = ~slave_write_addr_fifo_empty;
 assign slave_write_addr_fifo_full = _slave_write_addr_fifo_full | current_write_op[0];
 aw_fifo#(
-    .pending_depth(pending_depth),
     .ID_WIDTH(IDS_WIDTH),
     .ADDR_WIDTH(ADDR_WIDTH),
     .LEN_WIDTH(LEN_WIDTH),
     .SIZE_WIDTH(SIZE_WIDTH)
 ) master_forward_aw_fifo (
     //Global Signal
-    .ACLK(ACLK),
-    .ARESETn(ARESETn),
+    .clk_tx(ACLK),
+    .clk_rx(clk_ex_slave),
+    .nrst_tx(ARESETn),
+    .nrst_rx(nrst_ex_slave),
 
     //AXI Ports
     .AWID({{IDS_WIDTH-ID_WIDTH-$clog2(masters){1'b0}}, grant_write_addr_forward_master[$clog2(masters)-1:0], AWID}),
@@ -223,13 +226,14 @@ assign RID = front_most_RID[ID_WIDTH-1:0];
 // Pop when (master read_fifo is not full) & (some masters grant me) & (some masters says... Push tihs to fifo)
 assign salve_read_data_fifo_pop = ~master_read_data_fifo_full & some_masters_read_data_grant_me & some_masters_read_data_push_to_fifo;
 r_fifo #(
-    .pending_depth(pending_depth),
     .ID_WIDTH(IDS_WIDTH),
     .DATA_WIDTH(DATA_WIDTH)
 ) slave_return_r_fifo (
     //Global Signal
-    .ACLK(ACLK),
-    .ARESETn(ARESETn),
+    .clk_tx(clk_ex_slave),
+    .clk_rx(ACLK),
+    .nrst_tx(nrst_ex_slave),
+    .nrst_rx(ARESETn),
 
     //AXI Ports
     .RID(RID_S),
@@ -253,13 +257,14 @@ r_fifo #(
 assign WVALID_S = ~slave_write_data_fifo_empty;
 assign slave_write_data_fifo_full = (_slave_write_data_fifo_full | (~current_write_op[0]));
 w_fifo #(
-    .pending_depth(pending_depth),
     .DATA_WIDTH(DATA_WIDTH),
     .STRB_WIDTH(STRB_WIDTH)
 ) master_forward_w_fifo (
     //Global Signal
-    .ACLK(ACLK),
-    .ARESETn(ARESETn),
+    .clk_tx(ACLK),
+    .clk_rx(clk_ex_slave),
+    .nrst_tx(ARESETn),
+    .nrst_rx(nrst_ex_slave),
 
     //AXI Ports
     .WDATA(WDATA),
@@ -283,12 +288,13 @@ assign BID = front_most_BID[ID_WIDTH-1:0];
 // Pop when (master resp_fifo is not full) & (some masters grant me) & (some masters says... Push tihs to fifo)
 assign slave_write_resp_fifo_pop = ~master_write_resp_fifo_full & some_masters_write_resp_grant_me & some_masters_write_resp_push_to_fifo;
 b_fifo #(
-    .pending_depth(pending_depth),
     .ID_WIDTH(IDS_WIDTH)
 ) slave_return_b_fifo (
     //Global Signal
-    .ACLK(ACLK),
-    .ARESETn(ARESETn),
+    .clk_tx(clk_ex_slave),
+    .clk_rx(ACLK),
+    .nrst_tx(nrst_ex_slave),
+    .nrst_rx(ARESETn),
 
     //AXI Ports
     .BID(BID_S),
