@@ -65,7 +65,7 @@ always@(posedge ACLK) begin
         front <= {$clog2(pending_depth){1'b0}};
     else begin
         if(pop & ~empty) begin
-            front <= front + 1;
+            front <= front + {$clog2(pending_depth){1'b1}};
         end
     end
 end
@@ -76,7 +76,7 @@ always@(posedge ACLK) begin
         back <= {$clog2(pending_depth){1'b0}};
     else begin
         if(push & ~full) begin
-            back <= back + 1;
+            back <= back + {$clog2(pending_depth){1'b1}};
         end
     end
 end
@@ -86,6 +86,6 @@ assign front_RID = RID_reg[front];
 assign front_RDATA = RDATA_reg[front];
 assign front_RRESP = RRESP_reg[front];
 assign front_RLAST = RLAST_reg[front];
-assign full = ((back + 1) == front);
+assign full = ((back + {$clog2(pending_depth){1'b1}}) == front);
 assign empty = (back == front);
 endmodule
