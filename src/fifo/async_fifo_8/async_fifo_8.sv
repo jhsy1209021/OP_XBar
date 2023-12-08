@@ -1,8 +1,3 @@
-`include "read_pointer_handler.sv"
-`include "write_pointer_handler.sv"
-`include "graycode_encoder_16.sv"
-`include "synchronizer_3.sv"
-
 module async_fifo_8
 #(
     parameter DATA_WIDTH = 32
