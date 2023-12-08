@@ -22,7 +22,7 @@ always@(posedge clk_tx) begin
         write_counter <= 4'd0;
     
     else begin
-        if(push)
+        if(push & ~full)
             write_counter <= write_counter + 4'd1;
     end
 end

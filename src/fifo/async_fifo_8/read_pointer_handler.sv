@@ -19,7 +19,7 @@ always@(posedge clk_rx) begin
         read_counter <= 4'd0;
     
     else begin
-        if(pop)
+        if(pop & ~empty)
             read_counter <= read_counter + 4'd1;
     end
 end
