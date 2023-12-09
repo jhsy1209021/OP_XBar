@@ -38,7 +38,7 @@ module aw_fifo
 //Instantiate async_fifo
 async_fifo_8 #(
     .DATA_WIDTH(ID_WIDTH + ADDR_WIDTH + LEN_WIDTH + SIZE_WIDTH + 2)
-) async_ar_fifo_8 (
+) async_aw_fifo_8 (
     //Clock
     .clk_tx(clk_tx),
     .clk_rx(clk_rx),
