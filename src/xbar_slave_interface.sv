@@ -122,10 +122,13 @@ module xbar_slave_interface
 );
 ////////// Registers //////////
 reg [$clog2(slaves):0] current_write_op;
+reg [(2**ID_WIDTH)-1:0] ar_id_table;
+reg [(2**ID_WIDTH)-1:0] aw_id_table;
 
 ////////// Signals //////////
 //ar_fifo
 wire master_read_addr_fifo_full;
+wire _master_read_addr_fifo_empty;
 //aw fifo
 wire master_write_addr_fifo_full;
 wire _master_write_addr_fifo_empty;
@@ -141,6 +144,7 @@ wire master_write_resp_fifo_empty;
 
 ////////// Module initiate //////////
 assign ARREADY_M = ~master_read_addr_fifo_full;
+assign master_read_addr_fifo_empty = _master_read_addr_fifo_empty | ar_id_table[ARID]; // Block transfer when the previous request with same id have not been finished
 ar_fifo#(
     .pending_depth(pending_depth),
     .ID_WIDTH(ID_WIDTH),
@@ -163,7 +167,7 @@ ar_fifo#(
     .push(ARVALID_M),
     .pop(~slave_read_addr_fifo_full),
     .full(master_read_addr_fifo_full),
-    .empty(master_read_addr_fifo_empty),
+    .empty(_master_read_addr_fifo_empty),
     
     //Content
     .front_ARID(ARID),
@@ -174,7 +178,8 @@ ar_fifo#(
 );
 
 assign AWREADY_M = ~master_write_addr_fifo_full;
-assign master_write_addr_fifo_empty = _master_write_addr_fifo_empty | current_write_op[0];
+//Block transfer when (previous WDATA transfer have not been complete yet) | (previous request with same id have not been finished)
+assign master_write_addr_fifo_empty = (_master_write_addr_fifo_empty | current_write_op[0]) | aw_id_table[AWID];
 aw_fifo#(
     .pending_depth(pending_depth),
     .ID_WIDTH(ID_WIDTH),
@@ -378,6 +383,34 @@ always@(posedge ACLK) begin
             current_write_op[0] <= 1'b1;
         else if(WLAST)
             current_write_op[0] <= 1'b0;
+    end
+end
+
+//ar_id_table
+always@(posedge ACLK) begin
+    if(~ARESETn) begin
+        ar_id_table <= {(2**ID_WIDTH){1'b0}};
+    end
+
+    else begin
+        if(~slave_read_addr_fifo_full & ~master_read_addr_fifo_empty)
+            ar_id_table[ARID] <= 1'b1;
+        else if(RLAST & ((~slave_read_data_fifo_empty[grant_read_data_return_slave]) & read_data_push_to_fifo) & ~master_read_data_fifo_full) // RLAST & (grant slave push) & master ~full
+            ar_id_table[RID] <= 1'b0;
+    end
+end
+
+//aw_id_table
+always@(posedge ACLK) begin
+    if(~ARESETn) begin
+        aw_id_table <= {(2**ID_WIDTH){1'b0}};
+    end
+
+    else begin
+        if(~master_write_addr_fifo_empty & ~slave_write_addr_fifo_full)
+            aw_id_table[AWID] <= 1'b1;
+        else if(((~slave_write_resp_fifo_empty[grant_write_resp_return_slave]) & write_resp_push_to_fifo) & ~master_write_resp_fifo_full) // (grant slave push) & master ~full
+            aw_id_table[BID] <= 1'b0;
     end
 end
 endmodule
