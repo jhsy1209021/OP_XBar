@@ -130,6 +130,7 @@ wire _master_read_addr_fifo_empty;
 //aw fifo
 wire master_write_addr_fifo_full;
 wire _master_write_addr_fifo_empty;
+wire master_write_addr_fifo_pop;
 //r fifo
 wire read_data_push_to_fifo;
 wire master_read_data_fifo_empty;
@@ -142,7 +143,8 @@ wire master_write_resp_fifo_empty;
 
 ////////// Module initiate //////////
 assign ARREADY_M = ~master_read_addr_fifo_full;
-assign master_read_addr_fifo_empty = _master_read_addr_fifo_empty | ar_id_table[ARID]; // Block transfer when the previous request with same id have not been finished
+// Block transfer when the previous request with same id have not been finished
+assign master_read_addr_fifo_empty = _master_read_addr_fifo_empty | ar_id_table[ARID];
 ar_fifo#(
     .pending_depth(pending_depth),
     .ID_WIDTH(ID_WIDTH),
@@ -178,6 +180,8 @@ ar_fifo#(
 assign AWREADY_M = ~master_write_addr_fifo_full;
 //Block transfer when (previous WDATA transfer have not been complete yet) | (previous request with same id have not been finished)
 assign master_write_addr_fifo_empty = (_master_write_addr_fifo_empty | current_write_op[0]) | aw_id_table[AWID];
+//Pop when (slave fifo is not full) & (current_write_op[0] indicates that no write transfer in progress)
+assign master_write_addr_fifo_pop = (~slave_write_addr_fifo_full & ~current_write_op[0]);
 aw_fifo#(
     .pending_depth(pending_depth),
     .ID_WIDTH(ID_WIDTH),
@@ -198,7 +202,7 @@ aw_fifo#(
 
     //FIFO Control
     .push(AWVALID_M),
-    .pop(~slave_write_addr_fifo_full),
+    .pop(master_write_addr_fifo_pop),
     .full(master_write_addr_fifo_full),
     .empty(_master_write_addr_fifo_empty),
     
@@ -240,6 +244,7 @@ r_fifo #(
 );
 
 assign WREADY_M = ~master_write_data_fifo_full;
+//Block transfer when (master_write_data_fifo is empty) | (currently no write is in progress)
 assign master_write_data_fifo_empty = (_master_write_data_fifo_empty | (~current_write_op[0]));
 w_fifo #(
     .pending_depth(pending_depth),
