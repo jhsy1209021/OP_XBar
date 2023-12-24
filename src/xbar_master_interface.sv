@@ -57,6 +57,7 @@ module xbar_master_interface
     
     //Read Data Chaneel Returning info
     input master_read_data_fifo_full,
+    input [$clog2(slaves)-1:0] master_grant_read_data_slave_number [0:masters-1],
     output slave_read_data_fifo_empty,
     output [$clog2(masters)-1:0] read_data_return_dest_master,
 
@@ -73,6 +74,7 @@ module xbar_master_interface
 
     //Write Response Returning info
     input master_write_resp_fifo_full,
+    input [$clog2(slaves)-1:0] master_grant_write_resp_slave_number [0:masters-1],
     output slave_write_resp_fifo_empty,
     output [$clog2(masters)-1:0] write_resp_return_dest_master,
 
@@ -129,13 +131,20 @@ wire slave_write_addr_fifo_empty;
 wire _slave_write_addr_fifo_full;
 //r_fifo
 wire slave_read_data_fifo_full;
+wire salve_read_data_fifo_pop;
 wire [IDS_WIDTH-1:0] front_most_RID;
 //w_fifo
 wire slave_write_data_fifo_empty;
 wire _slave_write_data_fifo_full;
 //b_fifo
 wire slave_write_resp_fifo_full;
+wire slave_write_resp_fifo_pop;
 wire [IDS_WIDTH-1:0] front_most_BID;
+//arbiter grant result compare
+reg [masters-1:0] master_grant_me_read_data;
+wire some_masters_grant_me_read_data;
+reg [masters-1:0] master_grant_me_write_resp;
+wire some_masters_grant_me_write_resp;
 
 ////////// Module initiate //////////
 assign ARVALID_S = ~slave_read_addr_fifo_empty;
@@ -207,6 +216,8 @@ aw_fifo#(
 
 assign RREADY_S = ~slave_read_data_fifo_full;
 assign RID = front_most_RID[ID_WIDTH-1:0];
+// Pop when (master read_fifo is not full) & (some masters grant me)
+assign salve_read_data_fifo_pop = (~master_read_data_fifo_full & some_masters_grant_me_read_data);
 r_fifo #(
     .pending_depth(pending_depth),
     .ID_WIDTH(IDS_WIDTH),
@@ -224,7 +235,7 @@ r_fifo #(
 
     //FIFO Control
     .push(RVALID_S),
-    .pop(~master_read_data_fifo_full),
+    .pop(salve_read_data_fifo_pop),
     .full(slave_read_data_fifo_full),
     .empty(slave_read_data_fifo_empty),
     
@@ -265,6 +276,8 @@ w_fifo #(
 
 assign BREADY_S = ~slave_write_resp_fifo_full;
 assign BID = front_most_BID[ID_WIDTH-1:0];
+// Pop when (master resp_fifo is not full) & (some masters grant me)
+assign slave_write_resp_fifo_pop = (~master_write_resp_fifo_full & some_masters_grant_me_write_resp);
 b_fifo #(
     .pending_depth(pending_depth),
     .ID_WIDTH(IDS_WIDTH)
@@ -279,7 +292,7 @@ b_fifo #(
 
     //FIFO Control
     .push(BVALID_S),
-    .pop(~master_write_resp_fifo_full),
+    .pop(slave_write_resp_fifo_pop),
     .full(slave_write_resp_fifo_full),
     .empty(slave_write_resp_fifo_empty),
     
@@ -360,7 +373,7 @@ always@(posedge ACLK) begin
     if(~ARESETn)
         current_write_op[$clog2(masters):1] <= {$clog2(masters){1'b0}};
     else begin
-        if((~master_write_addr_fifo_empty[grant_write_addr_forward_master]) & ~slave_write_addr_fifo_full)
+        if((~master_write_addr_fifo_empty[grant_write_addr_forward_master]) & ~slave_write_addr_fifo_full & write_addr_push_to_fifo)
             current_write_op[$clog2(masters):1] <= grant_write_addr_forward_master;
     end
 end
@@ -369,10 +382,26 @@ always@(posedge ACLK) begin
     if(~ARESETn)
         current_write_op[0] <= 1'b0;
     else begin
-        if((~master_write_addr_fifo_empty[grant_write_addr_forward_master]) & ~slave_write_addr_fifo_full)
+        if((~master_write_addr_fifo_empty[grant_write_addr_forward_master]) & ~slave_write_addr_fifo_full & write_addr_push_to_fifo)
             current_write_op[0] <= 1'b1;
         else if(WLAST)
             current_write_op[0] <= 1'b0;
     end
 end
+
+////////// Other Signals //////////
+//Read Data grant compare
+always_comb begin
+    for(int i = 0; i < masters; i++) begin
+        master_grant_me_read_data[i] = (master_grant_read_data_slave_number[i] == i_am_slave_number);
+    end
+end
+assign some_masters_grant_me_read_data = (|master_grant_me_read_data);
+//Write Resp grant comparte
+always_comb begin
+    for(int i = 0; i < masters; i++) begin
+        master_grant_me_write_resp[i] = (master_grant_write_resp_slave_number[i] == i_am_slave_number);
+    end
+end
+assign some_masters_grant_me_write_resp = (|master_grant_me_write_resp);
 endmodule
