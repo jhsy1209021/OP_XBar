@@ -1,5 +1,3 @@
-`include "xbar_master_interface.svh"
-
 module xbar_master_interface
 #(
     //AXI Setup

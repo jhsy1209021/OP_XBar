@@ -1,5 +1,3 @@
-`include "xbar_slave_interface.svh"
-
 module xbar_slave_interface
 #(
     //AXI Setup
