@@ -19,19 +19,32 @@ clock aclk_m
 clock aclk_s
 reset ~aresetn_m ~aresetn_s
 
-
+#Master0 assertion setup
+assert -disable top.axi_master_0.genPropChksRDInf.genNoRdTblOverflow.genSlv.slave_ar_rd_tbl_no_overflow
+assert -disable top.axi_master_0.genPropChksWRInf.genNoWrTblOverflow.genSlv.slave_aw_wr_tbl_no_overflow
+assert -disable top.axi_master_0.genPropChksWRInf.genNoWrDatTblOverflow.genSlv.slave_w_wr_tbl_no_overflow
+assert -disable top.axi_master_0.genStableChks.genStableChksWRInf.genAXI4Full.slave_b_buser_stable
 assert -disable top.axi_master_0.genStableChks.genStableChksRDInf.genAXI4Full.slave_r_ruser_stable 
 assert -disable top.axi_master_0.genPropChksRDInf.genAXI4Full.genRdIlOff.slave_r_ar_rid_no_interleave
 assume -disable top.axi_master_0.genPropChksRDInf.genAXI4Full.master_ar_araddr_wrap_aligned
 assume -disable top.axi_master_0.genPropChksRDInf.genAXI4Full.master_ar_araddr_wrap_arlen
 assume -disable top.axi_master_0.genPropChksRDInf.genAXI4Full.master_ar_araddr_fixed_arlen
 
+#Master1 assertion setup
+assert -disable top.axi_master_1.genPropChksRDInf.genNoRdTblOverflow.genSlv.slave_ar_rd_tbl_no_overflow
+assert -disable top.axi_master_1.genPropChksWRInf.genNoWrTblOverflow.genSlv.slave_aw_wr_tbl_no_overflow
+assert -disable top.axi_master_1.genPropChksWRInf.genNoWrDatTblOverflow.genSlv.slave_w_wr_tbl_no_overflow
+assert -disable top.axi_master_1.genStableChks.genStableChksWRInf.genAXI4Full.slave_b_buser_stable
 assert -disable top.axi_master_1.genStableChks.genStableChksRDInf.genAXI4Full.slave_r_ruser_stable 
 assert -disable top.axi_master_1.genPropChksRDInf.genAXI4Full.genRdIlOff.slave_r_ar_rid_no_interleave
 assume -disable top.axi_master_1.genPropChksRDInf.genAXI4Full.master_ar_araddr_wrap_aligned
 assume -disable top.axi_master_1.genPropChksRDInf.genAXI4Full.master_ar_araddr_wrap_arlen
 assume -disable top.axi_master_1.genPropChksRDInf.genAXI4Full.master_ar_araddr_fixed_arlen
 
+#Slave0 assertion setup
+assert -disable top.axi_slave_0.genPropChksRDInf.genNoRdTblOverflow.master_ar_rd_tbl_no_overflow
+assert -disable top.axi_slave_0.genPropChksWRInf.genNoWrTblOverflow.master_aw_wr_tbl_no_overflow
+assert -disable top.axi_slave_0.genPropChksWRInf.genNoWrDatTblOverflow.master_w_wr_tbl_no_overflow
 assert -disable top.axi_slave_0.genStableChks.genStableChksWRInf.master_aw_awprot_stable
 assert -disable top.axi_slave_0.genPropChksRDInf.genAXI4Full.master_ar_arcache_no_ra_wa_for_uncacheable
 assert -disable top.axi_slave_0.genPropChksWRInf.genAXI4Full.master_aw_awcache_no_ra_wa_non_modifiable
@@ -55,6 +68,10 @@ assert -disable top.axi_slave_0.genPropChksWRInf.genAXI4Full.master_aw_awaddr_wr
 assert -disable top.axi_slave_0.genPropChksWRInf.genAXI4Full.master_aw_awaddr_wrap_awlen
 assume -disable top.axi_slave_0.genPropChksRDInf.genAXI4Full.genRdIlOff.slave_r_ar_rid_no_interleave
 
+#Slave1 assertion setup
+assert -disable top.axi_slave_1.genPropChksRDInf.genNoRdTblOverflow.master_ar_rd_tbl_no_overflow
+assert -disable top.axi_slave_1.genPropChksWRInf.genNoWrTblOverflow.master_aw_wr_tbl_no_overflow
+assert -disable top.axi_slave_1.genPropChksWRInf.genNoWrDatTblOverflow.master_w_wr_tbl_no_overflow
 assert -disable top.axi_slave_1.genStableChks.genStableChksWRInf.master_aw_awprot_stable
 assert -disable top.axi_slave_1.genPropChksRDInf.genAXI4Full.master_ar_arcache_no_ra_wa_for_uncacheable
 assert -disable top.axi_slave_1.genPropChksWRInf.genAXI4Full.master_aw_awcache_no_ra_wa_non_modifiable
@@ -78,6 +95,10 @@ assert -disable top.axi_slave_1.genPropChksWRInf.genAXI4Full.master_aw_awaddr_wr
 assert -disable top.axi_slave_1.genPropChksWRInf.genAXI4Full.master_aw_awaddr_wrap_awlen
 assume -disable top.axi_slave_1.genPropChksRDInf.genAXI4Full.genRdIlOff.slave_r_ar_rid_no_interleave
 
+#Slave2 assertion setup
+assert -disable top.axi_slave_2.genPropChksRDInf.genNoRdTblOverflow.master_ar_rd_tbl_no_overflow
+assert -disable top.axi_slave_2.genPropChksWRInf.genNoWrTblOverflow.master_aw_wr_tbl_no_overflow
+assert -disable top.axi_slave_2.genPropChksWRInf.genNoWrDatTblOverflow.master_w_wr_tbl_no_overflow
 assert -disable top.axi_slave_2.genStableChks.genStableChksWRInf.master_aw_awprot_stable
 assert -disable top.axi_slave_2.genPropChksRDInf.genAXI4Full.master_ar_arcache_no_ra_wa_for_uncacheable
 assert -disable top.axi_slave_2.genPropChksWRInf.genAXI4Full.master_aw_awcache_no_ra_wa_non_modifiable
@@ -101,6 +122,10 @@ assert -disable top.axi_slave_2.genPropChksWRInf.genAXI4Full.master_aw_awaddr_wr
 assert -disable top.axi_slave_2.genPropChksWRInf.genAXI4Full.master_aw_awaddr_wrap_awlen
 assume -disable top.axi_slave_2.genPropChksRDInf.genAXI4Full.genRdIlOff.slave_r_ar_rid_no_interleave
 
+#Slave3 assertion setup
+assert -disable top.axi_slave_3.genPropChksRDInf.genNoRdTblOverflow.master_ar_rd_tbl_no_overflow
+assert -disable top.axi_slave_3.genPropChksWRInf.genNoWrTblOverflow.master_aw_wr_tbl_no_overflow
+assert -disable top.axi_slave_3.genPropChksWRInf.genNoWrDatTblOverflow.master_w_wr_tbl_no_overflow
 assert -disable top.axi_slave_3.genStableChks.genStableChksWRInf.master_aw_awprot_stable
 assert -disable top.axi_slave_3.genPropChksRDInf.genAXI4Full.master_ar_arcache_no_ra_wa_for_uncacheable
 assert -disable top.axi_slave_3.genPropChksWRInf.genAXI4Full.master_aw_awcache_no_ra_wa_non_modifiable
@@ -124,6 +149,10 @@ assert -disable top.axi_slave_3.genPropChksWRInf.genAXI4Full.master_aw_awaddr_wr
 assert -disable top.axi_slave_3.genPropChksWRInf.genAXI4Full.master_aw_awaddr_wrap_awlen
 assume -disable top.axi_slave_3.genPropChksRDInf.genAXI4Full.genRdIlOff.slave_r_ar_rid_no_interleave
 
+#Slave4 assertion setup
+assert -disable top.axi_slave_4.genPropChksRDInf.genNoRdTblOverflow.master_ar_rd_tbl_no_overflow
+assert -disable top.axi_slave_4.genPropChksWRInf.genNoWrTblOverflow.master_aw_wr_tbl_no_overflow
+assert -disable top.axi_slave_4.genPropChksWRInf.genNoWrDatTblOverflow.master_w_wr_tbl_no_overflow
 assert -disable top.axi_slave_4.genStableChks.genStableChksWRInf.master_aw_awprot_stable
 assert -disable top.axi_slave_4.genPropChksRDInf.genAXI4Full.master_ar_arcache_no_ra_wa_for_uncacheable
 assert -disable top.axi_slave_4.genPropChksWRInf.genAXI4Full.master_aw_awcache_no_ra_wa_non_modifiable
@@ -147,6 +176,10 @@ assert -disable top.axi_slave_4.genPropChksWRInf.genAXI4Full.master_aw_awaddr_wr
 assert -disable top.axi_slave_4.genPropChksWRInf.genAXI4Full.master_aw_awaddr_wrap_awlen
 assume -disable top.axi_slave_4.genPropChksRDInf.genAXI4Full.genRdIlOff.slave_r_ar_rid_no_interleave
 
+#Slave5 assertion setup
+assert -disable top.axi_slave_5.genPropChksRDInf.genNoRdTblOverflow.master_ar_rd_tbl_no_overflow
+assert -disable top.axi_slave_5.genPropChksWRInf.genNoWrTblOverflow.master_aw_wr_tbl_no_overflow
+assert -disable top.axi_slave_5.genPropChksWRInf.genNoWrDatTblOverflow.master_w_wr_tbl_no_overflow
 assert -disable top.axi_slave_5.genStableChks.genStableChksWRInf.master_aw_awprot_stable
 assert -disable top.axi_slave_5.genPropChksRDInf.genAXI4Full.master_ar_arcache_no_ra_wa_for_uncacheable
 assert -disable top.axi_slave_5.genPropChksWRInf.genAXI4Full.master_aw_awcache_no_ra_wa_non_modifiable

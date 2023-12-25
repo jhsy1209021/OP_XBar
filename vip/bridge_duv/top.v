@@ -511,7 +511,7 @@ module top #(parameter bit COVERAGE_ON = 0) ();
         .DATA_WIDTH(32),
         .STRB_WIDTH(4),
 
-        .pending_depth(4),
+        .pending_depth(2),
         .masters(2),
         .slaves(6),
         .address_map_base({
@@ -963,7 +963,7 @@ module top #(parameter bit COVERAGE_ON = 0) ();
     defparam axi_slave_0.READ_INTERLEAVE_ON      = 0;
     defparam axi_slave_0.BYTE_STROBE_ON          = 0;
     defparam axi_slave_0.EXCL_ACCESS_ON          = 0;
-    defparam axi_slave_0.DATA_BEFORE_CONTROL_ON  = 0;
+    defparam axi_slave_0.DATA_BEFORE_CONTROL_ON  = 1;
     defparam axi_slave_0.COVERAGE_ON             = COVERAGE_ON;
     
 
@@ -1034,7 +1034,7 @@ module top #(parameter bit COVERAGE_ON = 0) ();
    // defparam axi_slave_1.READ_RESP_IN_ORDER_ON  = 1;
     defparam axi_slave_1.BYTE_STROBE_ON          = 0;
     defparam axi_slave_1.EXCL_ACCESS_ON          = 0;
-    defparam axi_slave_1.DATA_BEFORE_CONTROL_ON  = 0;
+    defparam axi_slave_1.DATA_BEFORE_CONTROL_ON  = 1;
     defparam axi_slave_1.COVERAGE_ON             = COVERAGE_ON;
 
 
@@ -1104,7 +1104,7 @@ module top #(parameter bit COVERAGE_ON = 0) ();
    // defparam axi_slave_2.READ_RESP_IN_ORDER_ON  = 1;
     defparam axi_slave_2.BYTE_STROBE_ON          = 0;
     defparam axi_slave_2.EXCL_ACCESS_ON          = 0;
-    defparam axi_slave_2.DATA_BEFORE_CONTROL_ON  = 0;
+    defparam axi_slave_2.DATA_BEFORE_CONTROL_ON  = 1;
     defparam axi_slave_2.COVERAGE_ON             = COVERAGE_ON;
 
 
@@ -1174,7 +1174,7 @@ module top #(parameter bit COVERAGE_ON = 0) ();
    // defparam axi_slave_3.READ_RESP_IN_ORDER_ON  = 1;
     defparam axi_slave_3.BYTE_STROBE_ON          = 0;
     defparam axi_slave_3.EXCL_ACCESS_ON          = 0;
-    defparam axi_slave_3.DATA_BEFORE_CONTROL_ON  = 0;
+    defparam axi_slave_3.DATA_BEFORE_CONTROL_ON  = 1;
     defparam axi_slave_3.COVERAGE_ON             = COVERAGE_ON;
 
 
@@ -1244,7 +1244,7 @@ module top #(parameter bit COVERAGE_ON = 0) ();
    // defparam axi_slave_4.READ_RESP_IN_ORDER_ON  = 1;
     defparam axi_slave_4.BYTE_STROBE_ON          = 0;
     defparam axi_slave_4.EXCL_ACCESS_ON          = 0;
-    defparam axi_slave_4.DATA_BEFORE_CONTROL_ON  = 0;
+    defparam axi_slave_4.DATA_BEFORE_CONTROL_ON  = 1;
     defparam axi_slave_4.COVERAGE_ON             = COVERAGE_ON;
 	
     axi4_slave axi_slave_5 (
@@ -1313,7 +1313,7 @@ module top #(parameter bit COVERAGE_ON = 0) ();
    // defparam axi_slave_5.READ_RESP_IN_ORDER_ON  = 1;
     defparam axi_slave_5.BYTE_STROBE_ON          = 0;
     defparam axi_slave_5.EXCL_ACCESS_ON          = 0;
-    defparam axi_slave_5.DATA_BEFORE_CONTROL_ON  = 0;
+    defparam axi_slave_5.DATA_BEFORE_CONTROL_ON  = 1;
     defparam axi_slave_5.COVERAGE_ON             = COVERAGE_ON;
 
 
@@ -1383,7 +1383,7 @@ module top #(parameter bit COVERAGE_ON = 0) ();
     defparam axi_master_0.READ_INTERLEAVE_ON      = 0;
     defparam axi_master_0.BYTE_STROBE_ON          = 0;
     defparam axi_master_0.EXCL_ACCESS_ON          = 0;
-    defparam axi_master_0.DATA_BEFORE_CONTROL_ON  = 0;
+    defparam axi_master_0.DATA_BEFORE_CONTROL_ON  = 1;
     defparam axi_master_0.COVERAGE_ON             = COVERAGE_ON;
     
 
@@ -1452,7 +1452,18 @@ module top #(parameter bit COVERAGE_ON = 0) ();
     defparam axi_master_1.READ_INTERLEAVE_ON      = 0;
     defparam axi_master_1.BYTE_STROBE_ON          = 0;
     defparam axi_master_1.EXCL_ACCESS_ON          = 0;
-    defparam axi_master_1.DATA_BEFORE_CONTROL_ON  = 0;
+    defparam axi_master_1.DATA_BEFORE_CONTROL_ON  = 1;
     defparam axi_master_1.COVERAGE_ON             = COVERAGE_ON;
+
+
+property addr_check(clk, aresetn, addr);
+  @(posedge clk) disable iff (~aresetn)
+  (addr>=32'h0000_0000 && addr<=32'h5FFF_FFFF);
+endproperty
+
+assume master0_ar_within_range:property (addr_check(top.aclk_m, top.aresetn_m, axi_master_0.araddr));
+assume master0_aw_within_range:property (addr_check(top.aclk_m, top.aresetn_m, axi_master_0.awaddr));
+assume master1_ar_within_range:property (addr_check(top.aclk_m, top.aresetn_m, axi_master_1.araddr));
+assume master1_aw_within_range:property (addr_check(top.aclk_m, top.aresetn_m, axi_master_1.awaddr));
 
 endmodule // top
