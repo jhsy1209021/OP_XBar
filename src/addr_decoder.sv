@@ -4,8 +4,8 @@ module addr_decoder
     parameter ADDR_WIDTH = 32,
 
     parameter slaves = 2,
-    parameter [ADDR_WIDTH-1:0] address_map_base [0:slaves-1] = {'h0000_0000, 'h1000_0000},
-    parameter [ADDR_WIDTH-1:0] address_map_end [0:slaves-1] = {'h0fff_ffff, 'h1fff_ffff}
+    parameter [0:slaves-1][ADDR_WIDTH-1:0] address_map_base = {32'h0000_0000, 32'h1000_0000},
+    parameter [0:slaves-1][ADDR_WIDTH-1:0] address_map_end = {32'h0fff_ffff, 32'h1fff_ffff}
 )
 (
     input [ADDR_WIDTH-1:0] addr,
