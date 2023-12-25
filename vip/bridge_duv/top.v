@@ -537,56 +537,56 @@ module top #(parameter bit COVERAGE_ON = 0) ();
 
         //To Outer Master Device
         //Read Address Channel
-        .ARID_M('{
+        .ARID_M({
             arid_m0,
             arid_m1
         }),
-        .ARADDR_M('{
+        .ARADDR_M({
             araddr_m0,
             araddr_m1
         }),
-        .ARLEN_M('{
+        .ARLEN_M({
             arlen_m0,
             arlen_m1
         }),
-        .ARSIZE_M('{
+        .ARSIZE_M({
             arsize_m0,
             arsize_m1
         }),
-        .ARBURST_M('{
+        .ARBURST_M({
             arburst_m0,
             arburst_m1
         }),
-        .ARVALID_M('{
+        .ARVALID_M({
             arvalid_m0,
             arvalid_m1
         }),
-        .ARREADY_M('{
+        .ARREADY_M({
             arready_m0,
             arready_m1
         }),
         //Read Data Channel
-        .RID_M('{
+        .RID_M({
             rid_m0,
             rid_m1
         }),
-        .RDATA_M('{
+        .RDATA_M({
             rdata_m0,
             rdata_m1
         }),
-        .RRESP_M('{
+        .RRESP_M({
             rresp_m0,
             rresp_m1
         }),
-        .RLAST_M('{
+        .RLAST_M({
             rlast_m0,
             rlast_m1
         }),
-        .RVALID_M('{
+        .RVALID_M({
             rvalid_m0,
             rvalid_m1
         }),
-        .RREADY_M('{
+        .RREADY_M({
             rready_m0,
             rready_m1
         }),
@@ -595,72 +595,72 @@ module top #(parameter bit COVERAGE_ON = 0) ();
             awid_m0,
             awid_m1
         }),
-        .AWADDR_M('{
+        .AWADDR_M({
             awaddr_m0,
             awaddr_m1
         }),
-        .AWLEN_M('{
+        .AWLEN_M({
             awlen_m0,
             awlen_m1
         }),
-        .AWSIZE_M('{
+        .AWSIZE_M({
             awsize_m0,
             awsize_m1
         }),
-        .AWBURST_M('{
+        .AWBURST_M({
             awburst_m0,
             awburst_m1
         }),
-        .AWVALID_M('{
+        .AWVALID_M({
             awvalid_m0,
             awvalid_m1
         }),
-        .AWREADY_M('{
+        .AWREADY_M({
             awready_m0,
             awready_m1
         }),
         //Write Data Channel
-        .WDATA_M('{
+        .WDATA_M({
             wdata_m0,
             wdata_m1
         }),
-        .WSTRB_M('{
+        .WSTRB_M({
             wstrb_m0,
             wstrb_m1
         }),
-        .WLAST_M('{
+        .WLAST_M({
             wlast_m0,
             wlast_m1
         }),
-        .WVALID_M('{
+        .WVALID_M({
             wvalid_m0,
             wvalid_m1
         }),
-        .WREADY_M('{
+        .WREADY_M({
             wready_m0,
             wready_m1
         }),
         //Write Response Channel
-        .BID_M('{
+        .BID_M({
             bid_m0,
             bid_m1
         }),
-        .BRESP_M('{
+        .BRESP_M({
             bresp_m0,
             bresp_m1
         }),
-        .BVALID_M('{
+        .BVALID_M({
             bvalid_m0,
             bvalid_m1
         }),
-        .BREADY_M('{
+        .BREADY_M({
             bready_m0,
             bready_m1
         }),
 
         //To Outer Slave Device
         //Read Address Channel
-        .ARID_S('{
+        .ARID_S({
             arid_s0,
             arid_s1,
             arid_s2,
@@ -668,7 +668,7 @@ module top #(parameter bit COVERAGE_ON = 0) ();
             arid_s4,
             arid_s5
         }),
-        .ARADDR_S('{
+        .ARADDR_S({
             araddr_s0,
             araddr_s1,
             araddr_s2,
@@ -676,7 +676,7 @@ module top #(parameter bit COVERAGE_ON = 0) ();
             araddr_s4,
             araddr_s5
         }),
-        .ARLEN_S('{
+        .ARLEN_S({
             arlen_s0,
             arlen_s1,
             arlen_s2,
@@ -684,7 +684,7 @@ module top #(parameter bit COVERAGE_ON = 0) ();
             arlen_s4,
             arlen_s5
         }),
-        .ARSIZE_S('{
+        .ARSIZE_S({
             arsize_s0,
             arsize_s1,
             arsize_s2,
@@ -692,7 +692,7 @@ module top #(parameter bit COVERAGE_ON = 0) ();
             arsize_s4,
             arsize_s5
         }),
-        .ARBURST_S('{
+        .ARBURST_S({
             arburst_s0,
             arburst_s1,
             arburst_s2,
@@ -700,7 +700,7 @@ module top #(parameter bit COVERAGE_ON = 0) ();
             arburst_s4,
             arburst_s5
         }),
-        .ARVALID_S('{
+        .ARVALID_S({
             arvalid_s0,
             arvalid_s1,
             arvalid_s2,
@@ -708,7 +708,7 @@ module top #(parameter bit COVERAGE_ON = 0) ();
             arvalid_s4,
             arvalid_s5
         }),
-        .ARREADY_S('{
+        .ARREADY_S({
             arready_s0,
             arready_s1,
             arready_s2,
@@ -717,7 +717,7 @@ module top #(parameter bit COVERAGE_ON = 0) ();
             arready_s5
         }),
         //READ DATA0
-        .RID_S('{
+        .RID_S({
             rid_s0,
             rid_s1,
             rid_s2,
@@ -725,7 +725,7 @@ module top #(parameter bit COVERAGE_ON = 0) ();
             rid_s4,
             rid_s5
         }),
-        .RDATA_S('{
+        .RDATA_S({
             rdata_s0,
             rdata_s1,
             rdata_s2,
@@ -733,7 +733,7 @@ module top #(parameter bit COVERAGE_ON = 0) ();
             rdata_s4,
             rdata_s5
         }),
-        .RRESP_S('{
+        .RRESP_S({
             rresp_s0,
             rresp_s1,
             rresp_s2,
@@ -741,7 +741,7 @@ module top #(parameter bit COVERAGE_ON = 0) ();
             rresp_s4,
             rresp_s5
         }),
-        .RLAST_S('{
+        .RLAST_S({
             rlast_s0,
             rlast_s1,
             rlast_s2,
@@ -749,7 +749,7 @@ module top #(parameter bit COVERAGE_ON = 0) ();
             rlast_s4,
             rlast_s5
         }),
-        .RVALID_S('{
+        .RVALID_S({
             rvalid_s0,
             rvalid_s1,
             rvalid_s2,
@@ -757,7 +757,7 @@ module top #(parameter bit COVERAGE_ON = 0) ();
             rvalid_s4,
             rvalid_s5
         }),
-        .RREADY_S('{
+        .RREADY_S({
             rready_s0,
             rready_s1,
             rready_s2,
@@ -766,7 +766,7 @@ module top #(parameter bit COVERAGE_ON = 0) ();
             rready_s5
         }),
         //WRITE ADDRESS0
-        .AWID_S('{
+        .AWID_S({
             awid_s0,
             awid_s1,
             awid_s2,
@@ -774,7 +774,7 @@ module top #(parameter bit COVERAGE_ON = 0) ();
             awid_s4,
             awid_s5
         }),
-        .AWADDR_S('{
+        .AWADDR_S({
             awaddr_s0,
             awaddr_s1,
             awaddr_s2,
@@ -782,7 +782,7 @@ module top #(parameter bit COVERAGE_ON = 0) ();
             awaddr_s4,
             awaddr_s5
         }),
-        .AWLEN_S('{
+        .AWLEN_S({
             awlen_s0,
             awlen_s1,
             awlen_s2,
@@ -790,7 +790,7 @@ module top #(parameter bit COVERAGE_ON = 0) ();
             awlen_s4,
             awlen_s5
         }),
-        .AWSIZE_S('{
+        .AWSIZE_S({
             awsize_s0,
             awsize_s1,
             awsize_s2,
@@ -798,7 +798,7 @@ module top #(parameter bit COVERAGE_ON = 0) ();
             awsize_s4,
             awsize_s5
         }),
-        .AWBURST_S('{
+        .AWBURST_S({
             awburst_s0,
             awburst_s1,
             awburst_s2,
@@ -806,7 +806,7 @@ module top #(parameter bit COVERAGE_ON = 0) ();
             awburst_s4,
             awburst_s5
         }),
-        .AWVALID_S('{
+        .AWVALID_S({
             awvalid_s0,
             awvalid_s1,
             awvalid_s2,
@@ -814,7 +814,7 @@ module top #(parameter bit COVERAGE_ON = 0) ();
             awvalid_s4,
             awvalid_s5
         }),
-        .AWREADY_S('{
+        .AWREADY_S({
             awready_s0,
             awready_s1,
             awready_s2,
@@ -823,7 +823,7 @@ module top #(parameter bit COVERAGE_ON = 0) ();
             awready_s5
         }),
         //WRITE DATA0
-        .WDATA_S('{
+        .WDATA_S({
             wdata_s0,
             wdata_s1,
             wdata_s2,
@@ -831,7 +831,7 @@ module top #(parameter bit COVERAGE_ON = 0) ();
             wdata_s4,
             wdata_s5
         }),
-        .WSTRB_S('{
+        .WSTRB_S({
             wstrb_s0,
             wstrb_s1,
             wstrb_s2,
@@ -839,7 +839,7 @@ module top #(parameter bit COVERAGE_ON = 0) ();
             wstrb_s4,
             wstrb_s5
         }),
-        .WLAST_S('{
+        .WLAST_S({
             wlast_s0,
             wlast_s1,
             wlast_s2,
@@ -847,7 +847,7 @@ module top #(parameter bit COVERAGE_ON = 0) ();
             wlast_s4,
             wlast_s5
         }),
-        .WVALID_S('{
+        .WVALID_S({
             wvalid_s0,
             wvalid_s1,
             wvalid_s2,
@@ -855,7 +855,7 @@ module top #(parameter bit COVERAGE_ON = 0) ();
             wvalid_s4,
             wvalid_s5
         }),
-        .WREADY_S('{
+        .WREADY_S({
             wready_s0,
             wready_s1,
             wready_s2,
@@ -864,7 +864,7 @@ module top #(parameter bit COVERAGE_ON = 0) ();
             wready_s5
         }),
         //WRITE RESPONSE0
-        .BID_S('{
+        .BID_S({
             bid_s0,
             bid_s1,
             bid_s2,
@@ -872,7 +872,7 @@ module top #(parameter bit COVERAGE_ON = 0) ();
             bid_s4,
             bid_s5
         }),
-        .BRESP_S('{
+        .BRESP_S({
             bresp_s0,
             bresp_s1,
             bresp_s2,
@@ -880,7 +880,7 @@ module top #(parameter bit COVERAGE_ON = 0) ();
             bresp_s4,
             bresp_s5
         }),
-        .BVALID_S('{
+        .BVALID_S({
             bvalid_s0,
             bvalid_s1,
             bvalid_s2,
@@ -888,7 +888,7 @@ module top #(parameter bit COVERAGE_ON = 0) ();
             bvalid_s4,
             bvalid_s5
         }),
-        .BREADY_S('{
+        .BREADY_S({
             bready_s0,
             bready_s1,
             bready_s2,
