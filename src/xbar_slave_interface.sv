@@ -54,6 +54,7 @@ module xbar_slave_interface
     //Read Address Channel forwarding info
     input slave_read_addr_fifo_full,
     input [$clog2(masters)-1:0] slave_grant_read_addr_master_number [0:slaves-1],
+    input slave_read_addr_push_to_fifo [0:slaves-1],
     output master_read_addr_fifo_empty,
     output [$clog2(slaves)-1:0] read_addr_forward_dest_slave,
 
@@ -62,10 +63,12 @@ module xbar_slave_interface
     input [$clog2(masters)-1:0] read_data_return_dest_master [0:slaves-1],
     output master_read_data_fifo_full,
     output [$clog2(slaves)-1:0] grant_read_data_return_slave,
+    output master_read_data_push_to_fifo,
 
     //Write Address Channel forwarding info
     input slave_write_addr_fifo_full,
     input [$clog2(masters)-1:0] slave_grant_write_addr_master_number [0:slaves-1],
+    input slave_write_addr_push_to_fifo[0:slaves-1],
     output master_write_addr_fifo_empty,
     output [$clog2(slaves)-1:0] write_addr_forward_dest_slave,
 
@@ -79,6 +82,7 @@ module xbar_slave_interface
     input [$clog2(masters)-1:0] write_resp_return_dest_master [0:slaves-1],
     output master_write_resp_fifo_full,
     output [$clog2(slaves)-1:0] grant_write_resp_return_slave,
+    output master_write_resp_push_to_fifo,
     
     ////////// To Outer Master //////////
     //Read Address Channel
@@ -135,26 +139,26 @@ wire master_write_addr_fifo_full;
 wire _master_write_addr_fifo_empty;
 wire master_write_addr_fifo_pop;
 //r fifo
-wire read_data_push_to_fifo;
 wire master_read_data_fifo_empty;
 //w fifo
 wire master_write_data_fifo_full;
 wire _master_write_data_fifo_empty;
 //b fifo
-wire write_resp_push_to_fifo;
 wire master_write_resp_fifo_empty;
 //arbiter grant result compare
-reg [slaves-1:0] slave_grant_me_read_addr;
-wire some_slaves_grant_me_read_addr;
-reg [slaves-1:0] slave_grant_me_write_addr;
-wire some_slaves_grant_me_write_addr;
+reg [slaves-1:0] slave_read_addr_grant_me;
+wire some_slaves_read_addr_grant_me;
+wire some_slaves_read_addr_push_to_fifo;
+reg [slaves-1:0] slave_write_addr_grant_me;
+wire some_slaves_write_addr_grant_me;
+wire some_slaves_write_addr_push_to_fifo;
 
 ////////// Module initiate //////////
 assign ARREADY_M = ~master_read_addr_fifo_full;
 // Block transfer when the previous request with same id have not been finished
 assign master_read_addr_fifo_empty = _master_read_addr_fifo_empty | ar_id_table[ARID];
-// Pop when (slave read_addr fifo is no full) & (some slaves grant me)
-assign master_read_addr_fifo_pop = ~slave_read_addr_fifo_full & some_slaves_grant_me_read_addr;
+// Pop when (slave read_addr fifo is no full) & (some slaves grant me) & (some slaves say... "Push this araddr to fifo!!")
+assign master_read_addr_fifo_pop = ~slave_read_addr_fifo_full & some_slaves_read_addr_grant_me & some_slaves_read_addr_push_to_fifo;
 ar_fifo#(
     .pending_depth(pending_depth),
     .ID_WIDTH(ID_WIDTH),
@@ -190,8 +194,8 @@ ar_fifo#(
 assign AWREADY_M = ~master_write_addr_fifo_full;
 //Block transfer when (previous WDATA transfer have not been complete yet) | (previous request with same id have not been finished)
 assign master_write_addr_fifo_empty = (_master_write_addr_fifo_empty | current_write_op[0]) | aw_id_table[AWID];
-//Pop when (slave fifo is not full) & (current_write_op[0] indicates that no write transfer in progress) & (some slaves grant me)
-assign master_write_addr_fifo_pop = (~slave_write_addr_fifo_full & ~current_write_op[0] & some_slaves_grant_me_write_addr);
+//Pop when (slave fifo is not full) & (current_write_op[0] indicates that no write transfer in progress) & (some slaves grant me) & & (some slaves say... "Push this awaddr to fifo!!")
+assign master_write_addr_fifo_pop = (~slave_write_addr_fifo_full & ~current_write_op[0] & some_slaves_write_addr_grant_me & some_slaves_write_addr_push_to_fifo);
 aw_fifo#(
     .pending_depth(pending_depth),
     .ID_WIDTH(ID_WIDTH),
@@ -241,7 +245,7 @@ r_fifo #(
     .RLAST(RLAST),
 
     //FIFO Control
-    .push((~slave_read_data_fifo_empty[grant_read_data_return_slave]) & read_data_push_to_fifo),
+    .push((~slave_read_data_fifo_empty[grant_read_data_return_slave]) & master_read_data_push_to_fifo),
     .pop(RREADY_M),
     .full(master_read_data_fifo_full),
     .empty(master_read_data_fifo_empty),
@@ -296,7 +300,7 @@ b_fifo #(
     .BRESP(BRESP),
 
     //FIFO Control
-    .push((~slave_write_resp_fifo_empty[grant_write_resp_return_slave]) & write_resp_push_to_fifo),
+    .push((~slave_write_resp_fifo_empty[grant_write_resp_return_slave]) & master_write_resp_push_to_fifo),
     .pop(BREADY_M),
     .full(master_write_resp_fifo_full),
     .empty(master_write_resp_fifo_empty),
@@ -347,7 +351,7 @@ backward_arbiter #(
     .master_fifo_full(master_read_data_fifo_full),
 
     //Grant Slave
-    .push_to_fifo(read_data_push_to_fifo),
+    .push_to_fifo(master_read_data_push_to_fifo),
     .grant_slave_number(grant_read_data_return_slave)
 );
 
@@ -365,7 +369,7 @@ backward_arbiter #(
     .slave_master_dest(write_resp_return_dest_master),
 
     //Master return FIFO Info
-    .push_to_fifo(write_resp_push_to_fifo),
+    .push_to_fifo(master_write_resp_push_to_fifo),
     .master_fifo_full(master_write_resp_fifo_full),
 
     //Grant Slave
@@ -381,7 +385,7 @@ always@(posedge ACLK) begin
     end
 
     else begin
-        if(~master_write_addr_fifo_empty & ~slave_write_addr_fifo_full & some_slaves_grant_me_write_addr)
+        if(~master_write_addr_fifo_empty & ~slave_write_addr_fifo_full & some_slaves_write_addr_grant_me)
             current_write_op[$clog2(slaves):1] <= write_addr_forward_dest_slave;
     end
 end
@@ -392,7 +396,7 @@ always@(posedge ACLK) begin
     end
 
     else begin
-        if(~master_write_addr_fifo_empty & ~slave_write_addr_fifo_full & some_slaves_grant_me_write_addr)
+        if(~master_write_addr_fifo_empty & ~slave_write_addr_fifo_full & some_slaves_write_addr_grant_me)
             current_write_op[0] <= 1'b1;
         else if(WLAST)
             current_write_op[0] <= 1'b0;
@@ -406,9 +410,9 @@ always@(posedge ACLK) begin
     end
 
     else begin
-        if(~slave_read_addr_fifo_full & ~master_read_addr_fifo_empty & some_slaves_grant_me_read_addr)
+        if(~slave_read_addr_fifo_full & ~master_read_addr_fifo_empty & some_slaves_read_addr_grant_me)
             ar_id_table[ARID] <= 1'b1;
-        else if(RLAST & ((~slave_read_data_fifo_empty[grant_read_data_return_slave]) & read_data_push_to_fifo) & ~master_read_data_fifo_full) // RLAST & (grant slave push) & master ~full
+        else if(RLAST & ~slave_read_data_fifo_empty[grant_read_data_return_slave] & ~master_read_data_fifo_full & master_read_data_push_to_fifo) // RLAST & (grant slave push) & master ~full & arbiter says...push to fifo!!
             ar_id_table[RID] <= 1'b0;
     end
 end
@@ -420,9 +424,9 @@ always@(posedge ACLK) begin
     end
 
     else begin
-        if(~master_write_addr_fifo_empty & ~slave_write_addr_fifo_full & some_slaves_grant_me_write_addr)
+        if(~master_write_addr_fifo_empty & ~slave_write_addr_fifo_full & some_slaves_write_addr_grant_me)
             aw_id_table[AWID] <= 1'b1;
-        else if(((~slave_write_resp_fifo_empty[grant_write_resp_return_slave]) & write_resp_push_to_fifo) & ~master_write_resp_fifo_full) // (grant slave push) & master ~full
+        else if(~slave_write_resp_fifo_empty[grant_write_resp_return_slave] & ~master_write_resp_fifo_full & master_write_resp_push_to_fifo) // (grant slave push) & master ~full & arbiter says...push to fifo!!
             aw_id_table[BID] <= 1'b0;
     end
 end
@@ -431,15 +435,19 @@ end
 //Read Address grant compare
 always_comb begin
     for(int i = 0; i < slaves; i++) begin
-        slave_grant_me_read_addr[i] = (slave_grant_read_addr_master_number[i] == i_am_master_number);
+        slave_read_addr_grant_me[i] = (slave_grant_read_addr_master_number[i] == i_am_master_number);
     end
 end
-assign some_slaves_grant_me_read_addr = (|slave_grant_me_read_addr);
+assign some_slaves_read_addr_grant_me = (|slave_read_addr_grant_me);
 //Write Address grant compare
 always_comb begin
     for(int i = 0; i < slaves; i++) begin
-        slave_grant_me_write_addr[i] = (slave_grant_write_addr_master_number[i] == i_am_master_number);
+        slave_write_addr_grant_me[i] = (slave_grant_write_addr_master_number[i] == i_am_master_number);
     end
 end
-assign some_slaves_grant_me_write_addr = (|slave_grant_me_write_addr);
+assign some_slaves_write_addr_grant_me = (|slave_write_addr_grant_me);
+
+//Push to fifo <-- This signal is set when arbiter gives valid grant number
+assign some_slaves_read_addr_push_to_fifo = (|slave_read_addr_push_to_fifo);
+assign some_slaves_write_addr_push_to_fifo = (|slave_write_addr_push_to_fifo);
 endmodule

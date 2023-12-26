@@ -190,12 +190,16 @@ wire [$clog2(masters)-1:0] write_resp_return_dest_master [0:slaves-1];
 //Signals --> Arbitration Result
 //Read Address Channel
 wire [$clog2(masters)-1:0] grant_read_addr_forward_master [0:slaves-1];
+wire slave_read_addr_push_to_fifo [0:slaves-1];
 //Read Data Channel
 wire [$clog2(slaves)-1:0] grant_read_data_return_slave [0:masters-1];
+wire master_read_data_push_to_fifo [0:masters-1];
 //Write Address Channel
 wire [$clog2(masters)-1:0] grant_write_addr_forward_master [0:slaves-1];
+wire slave_write_addr_push_to_fifo [0:slaves-1];
 //Write Response Channel
 wire [$clog2(slaves)-1:0] grant_write_resp_return_slave [0:masters-1];
+wire master_write_resp_push_to_fifo [0:masters-1];
 
 ////////// Instantiate Slave Interface to Connect to Outer Master Devices //////////
 genvar number_of_master;
@@ -255,6 +259,7 @@ generate
             //Read Address Channel forwarding info
             .slave_read_addr_fifo_full(slave_read_addr_fifo_full_S[number_of_master]),
             .slave_grant_read_addr_master_number(grant_read_addr_forward_master),
+            .slave_read_addr_push_to_fifo(slave_read_addr_push_to_fifo),
             .master_read_addr_fifo_empty(master_read_addr_fifo_empty_S[number_of_master]),
             .read_addr_forward_dest_slave(read_addr_forward_dest_slave[number_of_master]),
 
@@ -263,10 +268,12 @@ generate
             .read_data_return_dest_master(read_data_return_dest_master),
             .master_read_data_fifo_full(master_read_data_fifo_full_S[number_of_master]),
             .grant_read_data_return_slave(grant_read_data_return_slave[number_of_master]),
+            .master_read_data_push_to_fifo(master_read_data_push_to_fifo[number_of_master]),
 
             //Write Address Channel forwarding info
             .slave_write_addr_fifo_full(slave_write_addr_fifo_full_S[number_of_master]),
             .slave_grant_write_addr_master_number(grant_write_addr_forward_master),
+            .slave_write_addr_push_to_fifo(slave_write_addr_push_to_fifo),
             .master_write_addr_fifo_empty(master_write_addr_fifo_empty_S[number_of_master]),
             .write_addr_forward_dest_slave(write_addr_forward_dest_slave[number_of_master]),
 
@@ -280,6 +287,7 @@ generate
             .write_resp_return_dest_master(write_resp_return_dest_master),
             .master_write_resp_fifo_full(master_write_resp_fifo_full_S[number_of_master]),
             .grant_write_resp_return_slave(grant_write_resp_return_slave[number_of_master]),
+            .master_write_resp_push_to_fifo(master_write_resp_push_to_fifo[number_of_master]),
             
             ////////// To Outer Master //////////
             //Read Address Channel
@@ -380,12 +388,14 @@ generate
             //Read Address Channel Forwarding info
             .master_read_addr_fifo_empty(master_read_addr_fifo_empty_S),
             .read_addr_forward_dest_slave(read_addr_forward_dest_slave),
+            .slave_read_addr_push_to_fifo(slave_read_addr_push_to_fifo[number_of_slave]),
             .slave_read_addr_fifo_full(slave_read_addr_fifo_full_M[number_of_slave]),
             .grant_read_addr_forward_master(grant_read_addr_forward_master[number_of_slave]),
             
             //Read Data Chaneel Returning info
             .master_read_data_fifo_full(master_read_data_fifo_full_M[number_of_slave]),
             .master_grant_read_data_slave_number(grant_read_data_return_slave),
+            .master_read_data_push_to_fifo(master_read_data_push_to_fifo),
             .slave_read_data_fifo_empty(slave_read_data_fifo_empty_M[number_of_slave]),
             .read_data_return_dest_master(read_data_return_dest_master[number_of_slave]),
 
@@ -394,6 +404,7 @@ generate
             .write_addr_forward_dest_slave(write_addr_forward_dest_slave),
             .slave_write_addr_fifo_full(slave_write_addr_fifo_full_M[number_of_slave]),
             .grant_write_addr_forward_master(grant_write_addr_forward_master[number_of_slave]),
+            .slave_write_addr_push_to_fifo(slave_write_addr_push_to_fifo[number_of_slave]),
 
             //Write Data Channel Forwarding info
             .master_write_data_fifo_empty(master_write_data_fifo_empty_M[number_of_slave]),
@@ -403,6 +414,7 @@ generate
             //Write Response Returning info
             .master_write_resp_fifo_full(master_write_resp_fifo_full_M[number_of_slave]),
             .master_grant_write_resp_slave_number(grant_write_resp_return_slave),
+            .master_write_resp_push_to_fifo(master_write_resp_push_to_fifo),
             .slave_write_resp_fifo_empty(slave_write_resp_fifo_empty_M[number_of_slave]),
             .write_resp_return_dest_master(write_resp_return_dest_master[number_of_slave]),
             
