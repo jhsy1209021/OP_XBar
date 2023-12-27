@@ -18,7 +18,7 @@ module backward_arbiter
 
     //Grant Slave
     output push_to_fifo,
-    output [$clog2(slaves)-1:0] grant_slave_number
+    output [$clog2(slaves):0] grant_slave_number
 );
 
 //Registers

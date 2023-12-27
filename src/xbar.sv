@@ -189,16 +189,16 @@ wire [$clog2(masters)-1:0] write_resp_return_dest_master [0:slaves-1];
 
 //Signals --> Arbitration Result
 //Read Address Channel
-wire [$clog2(masters)-1:0] grant_read_addr_forward_master [0:slaves-1];
+wire [$clog2(masters):0] grant_read_addr_forward_master [0:slaves-1];
 wire [slaves-1:0] slave_read_addr_push_to_fifo;
 //Read Data Channel
-wire [$clog2(slaves)-1:0] grant_read_data_return_slave [0:masters-1];
+wire [$clog2(slaves):0] grant_read_data_return_slave [0:masters-1];
 wire [masters-1:0] master_read_data_push_to_fifo;
 //Write Address Channel
-wire [$clog2(masters)-1:0] grant_write_addr_forward_master [0:slaves-1];
+wire [$clog2(masters):0] grant_write_addr_forward_master [0:slaves-1];
 wire [slaves-1:0] slave_write_addr_push_to_fifo;
 //Write Response Channel
-wire [$clog2(slaves)-1:0] grant_write_resp_return_slave [0:masters-1];
+wire [$clog2(slaves):0] grant_write_resp_return_slave [0:masters-1];
 wire [masters-1:0] master_write_resp_push_to_fifo;
 
 ////////// Instantiate Slave Interface to Connect to Outer Master Devices //////////
@@ -466,17 +466,17 @@ endgenerate
 //ixc_return --> Read Data Channel
 always_comb begin
     for(int i = 0; i < masters; i++) begin
-        RID_S_ixc[i] = RID_M_ixc[grant_read_data_return_slave[i]];
-        RDATA_S_ixc[i] = RDATA_M_ixc[grant_read_data_return_slave[i]];
-        RRESP_S_ixc[i] = RRESP_M_ixc[grant_read_data_return_slave[i]];
-        RLAST_S_ixc[i] = RLAST_M_ixc[grant_read_data_return_slave[i]];
+        RID_S_ixc[i] = RID_M_ixc[grant_read_data_return_slave[i][$clog2(slaves)-1:0]];
+        RDATA_S_ixc[i] = RDATA_M_ixc[grant_read_data_return_slave[i][$clog2(slaves)-1:0]];
+        RRESP_S_ixc[i] = RRESP_M_ixc[grant_read_data_return_slave[i][$clog2(slaves)-1:0]];
+        RLAST_S_ixc[i] = RLAST_M_ixc[grant_read_data_return_slave[i][$clog2(slaves)-1:0]];
     end
 end
 //ixc_return --> Write Response Channel
 always_comb begin
     for(int i = 0; i < masters; i++) begin
-        BID_S_ixc[i] = BID_M_ixc[grant_write_resp_return_slave[i]];
-        BRESP_S_ixc[i] = BRESP_M_ixc[grant_write_resp_return_slave[i]];
+        BID_S_ixc[i] = BID_M_ixc[grant_write_resp_return_slave[i][$clog2(slaves)-1:0]];
+        BRESP_S_ixc[i] = BRESP_M_ixc[grant_write_resp_return_slave[i][$clog2(slaves)-1:0]];
     end
 end
 //fifo_info_return --> Read Address Channel, Write Address Channel, Write Data Channel
@@ -492,21 +492,21 @@ end
 //ixc_forward --> Read Address Channel
 always_comb begin
     for(int i = 0; i < slaves; i++) begin
-        ARID_M_ixc[i] = ARID_S_ixc[grant_read_addr_forward_master[i]];
-        ARADDR_M_ixc[i] = ARADDR_S_ixc[grant_read_addr_forward_master[i]];
-        ARLEN_M_ixc[i] = ARLEN_S_ixc[grant_read_addr_forward_master[i]];
-        ARSIZE_M_ixc[i] = ARSIZE_S_ixc[grant_read_addr_forward_master[i]];
-        ARBURST_M_ixc[i] = ARBURST_S_ixc[grant_read_addr_forward_master[i]];
+        ARID_M_ixc[i] = ARID_S_ixc[grant_read_addr_forward_master[i][$clog2(masters)-1:0]];
+        ARADDR_M_ixc[i] = ARADDR_S_ixc[grant_read_addr_forward_master[i][$clog2(masters)-1:0]];
+        ARLEN_M_ixc[i] = ARLEN_S_ixc[grant_read_addr_forward_master[i][$clog2(masters)-1:0]];
+        ARSIZE_M_ixc[i] = ARSIZE_S_ixc[grant_read_addr_forward_master[i][$clog2(masters)-1:0]];
+        ARBURST_M_ixc[i] = ARBURST_S_ixc[grant_read_addr_forward_master[i][$clog2(masters)-1:0]];
     end
 end
 //ixc_forward --> Write Address Channel
 always_comb begin
     for(int i = 0; i < slaves; i++) begin
-        AWID_M_ixc[i] = AWID_S_ixc[grant_write_addr_forward_master[i]];
-        AWADDR_M_ixc[i] = AWADDR_S_ixc[grant_write_addr_forward_master[i]];
-        AWLEN_M_ixc[i] = AWLEN_S_ixc[grant_write_addr_forward_master[i]];
-        AWSIZE_M_ixc[i] = AWSIZE_S_ixc[grant_write_addr_forward_master[i]];
-        AWBURST_M_ixc[i] = AWBURST_S_ixc[grant_write_addr_forward_master[i]];
+        AWID_M_ixc[i] = AWID_S_ixc[grant_write_addr_forward_master[i][$clog2(masters)-1:0]];
+        AWADDR_M_ixc[i] = AWADDR_S_ixc[grant_write_addr_forward_master[i][$clog2(masters)-1:0]];
+        AWLEN_M_ixc[i] = AWLEN_S_ixc[grant_write_addr_forward_master[i][$clog2(masters)-1:0]];
+        AWSIZE_M_ixc[i] = AWSIZE_S_ixc[grant_write_addr_forward_master[i][$clog2(masters)-1:0]];
+        AWBURST_M_ixc[i] = AWBURST_S_ixc[grant_write_addr_forward_master[i][$clog2(masters)-1:0]];
     end
 end
 //ixc_forward --> Write Data Channel

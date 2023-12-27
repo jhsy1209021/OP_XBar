@@ -53,12 +53,12 @@ module xbar_master_interface
     input master_read_addr_fifo_empty [0:masters-1],
     input [$clog2(slaves)-1:0] read_addr_forward_dest_slave [0:masters-1],
     output slave_read_addr_fifo_full,
-    output [$clog2(masters)-1:0] grant_read_addr_forward_master,
+    output [$clog2(masters):0] grant_read_addr_forward_master,
     output slave_read_addr_push_to_fifo,
     
     //Read Data Chaneel Returning info
     input master_read_data_fifo_full,
-    input [$clog2(slaves)-1:0] master_grant_read_data_slave_number [0:masters-1],
+    input [$clog2(slaves):0] master_grant_read_data_slave_number [0:masters-1],
     input [masters-1:0] master_read_data_push_to_fifo,
     output slave_read_data_fifo_empty,
     output [$clog2(masters)-1:0] read_data_return_dest_master,
@@ -67,7 +67,7 @@ module xbar_master_interface
     input master_write_addr_fifo_empty [0:masters-1],
     input [$clog2(slaves)-1:0] write_addr_forward_dest_slave [0:masters-1],
     output slave_write_addr_fifo_full,
-    output [$clog2(masters)-1:0] grant_write_addr_forward_master,
+    output [$clog2(masters):0] grant_write_addr_forward_master,
     output slave_write_addr_push_to_fifo,
 
     //Write Data Channel Forwarding info
@@ -77,7 +77,7 @@ module xbar_master_interface
 
     //Write Response Returning info
     input master_write_resp_fifo_full,
-    input [$clog2(slaves)-1:0] master_grant_write_resp_slave_number [0:masters-1],
+    input [$clog2(slaves):0] master_grant_write_resp_slave_number [0:masters-1],
     input [masters-1:0] master_write_resp_push_to_fifo,
     output slave_write_resp_fifo_empty,
     output [$clog2(masters)-1:0] write_resp_return_dest_master,
@@ -164,14 +164,14 @@ ar_fifo#(
     .ARESETn(ARESETn),
 
     //AXI Ports
-    .ARID({grant_read_addr_forward_master, ARID}),
+    .ARID({{IDS_WIDTH - ID_WIDTH - $clog2(masters){1'b0}}, grant_read_addr_forward_master[$clog2(masters)-1:0], ARID}),
     .ARADDR(ARADDR),
     .ARLEN(ARLEN),
     .ARSIZE(ARSIZE),
     .ARBURST(ARBURST),
 
     //FIFO Control
-    .push((~master_read_addr_fifo_empty[grant_read_addr_forward_master]) & slave_read_addr_push_to_fifo),
+    .push((~master_read_addr_fifo_empty[grant_read_addr_forward_master[$clog2(masters)-1:0]]) & slave_read_addr_push_to_fifo),
     .pop(ARREADY_S),
     .full(slave_read_addr_fifo_full),
     .empty(slave_read_addr_fifo_empty),
@@ -198,14 +198,14 @@ aw_fifo#(
     .ARESETn(ARESETn),
 
     //AXI Ports
-    .AWID({grant_write_addr_forward_master, AWID}),
+    .AWID({{IDS_WIDTH-ID_WIDTH-$clog2(masters){1'b0}}, grant_write_addr_forward_master[$clog2(masters)-1:0], AWID}),
     .AWADDR(AWADDR),
     .AWLEN(AWLEN),
     .AWSIZE(AWSIZE),
     .AWBURST(AWBURST),
 
     //FIFO Control
-    .push((~master_write_addr_fifo_empty[grant_write_addr_forward_master]) & slave_write_addr_push_to_fifo),
+    .push((~master_write_addr_fifo_empty[grant_write_addr_forward_master[$clog2(masters)-1:0]]) & slave_write_addr_push_to_fifo),
     .pop(AWREADY_S),
     .full(_slave_write_addr_fifo_full),
     .empty(slave_write_addr_fifo_empty),
@@ -377,8 +377,8 @@ always@(posedge ACLK) begin
     if(~ARESETn)
         current_write_op[$clog2(masters):1] <= {$clog2(masters){1'b0}};
     else begin
-        if((~master_write_addr_fifo_empty[grant_write_addr_forward_master]) & ~slave_write_addr_fifo_full & slave_write_addr_push_to_fifo)
-            current_write_op[$clog2(masters):1] <= grant_write_addr_forward_master;
+        if((~master_write_addr_fifo_empty[grant_write_addr_forward_master[$clog2(masters)-1:0]]) & ~slave_write_addr_fifo_full & slave_write_addr_push_to_fifo)
+            current_write_op[$clog2(masters):1] <= grant_write_addr_forward_master[$clog2(masters)-1:0];
     end
 end
 
@@ -386,7 +386,7 @@ always@(posedge ACLK) begin
     if(~ARESETn)
         current_write_op[0] <= 1'b0;
     else begin
-        if((~master_write_addr_fifo_empty[grant_write_addr_forward_master]) & ~slave_write_addr_fifo_full & slave_write_addr_push_to_fifo)
+        if((~master_write_addr_fifo_empty[grant_write_addr_forward_master[$clog2(masters)-1:0]]) & ~slave_write_addr_fifo_full & slave_write_addr_push_to_fifo)
             current_write_op[0] <= 1'b1;
         else if(WLAST)
             current_write_op[0] <= 1'b0;

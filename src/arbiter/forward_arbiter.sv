@@ -18,7 +18,7 @@ module forward_arbiter
 
     //Granted Master
     output push_to_fifo,
-    output [$clog2(masters)-1:0] grant_master_number
+    output [$clog2(masters):0] grant_master_number
 );
 
 //Registers

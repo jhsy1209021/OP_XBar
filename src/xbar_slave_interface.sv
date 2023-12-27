@@ -53,7 +53,7 @@ module xbar_slave_interface
 
     //Read Address Channel forwarding info
     input slave_read_addr_fifo_full,
-    input [$clog2(masters)-1:0] slave_grant_read_addr_master_number [0:slaves-1],
+    input [$clog2(masters):0] slave_grant_read_addr_master_number [0:slaves-1],
     input [slaves-1:0] slave_read_addr_push_to_fifo,
     output master_read_addr_fifo_empty,
     output [$clog2(slaves)-1:0] read_addr_forward_dest_slave,
@@ -62,12 +62,12 @@ module xbar_slave_interface
     input slave_read_data_fifo_empty [0:slaves-1],
     input [$clog2(masters)-1:0] read_data_return_dest_master [0:slaves-1],
     output master_read_data_fifo_full,
-    output [$clog2(slaves)-1:0] grant_read_data_return_slave,
+    output [$clog2(slaves):0] grant_read_data_return_slave,
     output master_read_data_push_to_fifo,
 
     //Write Address Channel forwarding info
     input slave_write_addr_fifo_full,
-    input [$clog2(masters)-1:0] slave_grant_write_addr_master_number [0:slaves-1],
+    input [$clog2(masters):0] slave_grant_write_addr_master_number [0:slaves-1],
     input [slaves-1:0] slave_write_addr_push_to_fifo,
     output master_write_addr_fifo_empty,
     output [$clog2(slaves)-1:0] write_addr_forward_dest_slave,
@@ -81,7 +81,7 @@ module xbar_slave_interface
     input slave_write_resp_fifo_empty [0:slaves-1],
     input [$clog2(masters)-1:0] write_resp_return_dest_master [0:slaves-1],
     output master_write_resp_fifo_full,
-    output [$clog2(slaves)-1:0] grant_write_resp_return_slave,
+    output [$clog2(slaves):0] grant_write_resp_return_slave,
     output master_write_resp_push_to_fifo,
     
     ////////// To Outer Master //////////
@@ -245,7 +245,7 @@ r_fifo #(
     .RLAST(RLAST),
 
     //FIFO Control
-    .push((~slave_read_data_fifo_empty[grant_read_data_return_slave]) & master_read_data_push_to_fifo),
+    .push((~slave_read_data_fifo_empty[grant_read_data_return_slave[$clog2(slaves)-1:0]]) & master_read_data_push_to_fifo),
     .pop(RREADY_M),
     .full(master_read_data_fifo_full),
     .empty(master_read_data_fifo_empty),
@@ -300,7 +300,7 @@ b_fifo #(
     .BRESP(BRESP),
 
     //FIFO Control
-    .push((~slave_write_resp_fifo_empty[grant_write_resp_return_slave]) & master_write_resp_push_to_fifo),
+    .push((~slave_write_resp_fifo_empty[grant_write_resp_return_slave[$clog2(slaves)-1:0]]) & master_write_resp_push_to_fifo),
     .pop(BREADY_M),
     .full(master_write_resp_fifo_full),
     .empty(master_write_resp_fifo_empty),
@@ -412,7 +412,7 @@ always@(posedge ACLK) begin
     else begin
         if(~slave_read_addr_fifo_full & ~master_read_addr_fifo_empty & some_slaves_read_addr_grant_me)
             ar_id_table[ARID] <= 1'b1;
-        else if(RLAST & ~slave_read_data_fifo_empty[grant_read_data_return_slave] & ~master_read_data_fifo_full & master_read_data_push_to_fifo) // RLAST & (grant slave push) & master ~full & arbiter says...push to fifo!!
+        else if(RLAST & ~slave_read_data_fifo_empty[grant_read_data_return_slave[$clog2(slaves)-1:0]] & ~master_read_data_fifo_full & master_read_data_push_to_fifo) // RLAST & (grant slave push) & master ~full & arbiter says...push to fifo!!
             ar_id_table[RID] <= 1'b0;
     end
 end
@@ -426,7 +426,7 @@ always@(posedge ACLK) begin
     else begin
         if(~master_write_addr_fifo_empty & ~slave_write_addr_fifo_full & some_slaves_write_addr_grant_me)
             aw_id_table[AWID] <= 1'b1;
-        else if(~slave_write_resp_fifo_empty[grant_write_resp_return_slave] & ~master_write_resp_fifo_full & master_write_resp_push_to_fifo) // (grant slave push) & master ~full & arbiter says...push to fifo!!
+        else if(~slave_write_resp_fifo_empty[grant_write_resp_return_slave[$clog2(slaves)-1:0]] & ~master_write_resp_fifo_full & master_write_resp_push_to_fifo) // (grant slave push) & master ~full & arbiter says...push to fifo!!
             aw_id_table[BID] <= 1'b0;
     end
 end
