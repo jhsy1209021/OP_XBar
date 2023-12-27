@@ -54,7 +54,7 @@ module xbar_slave_interface
     //Read Address Channel forwarding info
     input slave_read_addr_fifo_full,
     input [$clog2(masters)-1:0] slave_grant_read_addr_master_number [0:slaves-1],
-    input slave_read_addr_push_to_fifo [0:slaves-1],
+    input [slaves-1:0] slave_read_addr_push_to_fifo,
     output master_read_addr_fifo_empty,
     output [$clog2(slaves)-1:0] read_addr_forward_dest_slave,
 
@@ -68,7 +68,7 @@ module xbar_slave_interface
     //Write Address Channel forwarding info
     input slave_write_addr_fifo_full,
     input [$clog2(masters)-1:0] slave_grant_write_addr_master_number [0:slaves-1],
-    input slave_write_addr_push_to_fifo[0:slaves-1],
+    input [slaves-1:0] slave_write_addr_push_to_fifo,
     output master_write_addr_fifo_empty,
     output [$clog2(slaves)-1:0] write_addr_forward_dest_slave,
 

@@ -190,16 +190,16 @@ wire [$clog2(masters)-1:0] write_resp_return_dest_master [0:slaves-1];
 //Signals --> Arbitration Result
 //Read Address Channel
 wire [$clog2(masters)-1:0] grant_read_addr_forward_master [0:slaves-1];
-wire slave_read_addr_push_to_fifo [0:slaves-1];
+wire [slaves-1:0] slave_read_addr_push_to_fifo;
 //Read Data Channel
 wire [$clog2(slaves)-1:0] grant_read_data_return_slave [0:masters-1];
-wire master_read_data_push_to_fifo [0:masters-1];
+wire [masters-1:0] master_read_data_push_to_fifo;
 //Write Address Channel
 wire [$clog2(masters)-1:0] grant_write_addr_forward_master [0:slaves-1];
-wire slave_write_addr_push_to_fifo [0:slaves-1];
+wire [slaves-1:0] slave_write_addr_push_to_fifo;
 //Write Response Channel
 wire [$clog2(slaves)-1:0] grant_write_resp_return_slave [0:masters-1];
-wire master_write_resp_push_to_fifo [0:masters-1];
+wire [masters-1:0] master_write_resp_push_to_fifo;
 
 ////////// Instantiate Slave Interface to Connect to Outer Master Devices //////////
 genvar number_of_master;

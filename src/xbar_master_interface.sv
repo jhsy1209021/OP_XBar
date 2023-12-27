@@ -59,7 +59,7 @@ module xbar_master_interface
     //Read Data Chaneel Returning info
     input master_read_data_fifo_full,
     input [$clog2(slaves)-1:0] master_grant_read_data_slave_number [0:masters-1],
-    input master_read_data_push_to_fifo [0:masters-1],
+    input [masters-1:0] master_read_data_push_to_fifo,
     output slave_read_data_fifo_empty,
     output [$clog2(masters)-1:0] read_data_return_dest_master,
 
@@ -78,7 +78,7 @@ module xbar_master_interface
     //Write Response Returning info
     input master_write_resp_fifo_full,
     input [$clog2(slaves)-1:0] master_grant_write_resp_slave_number [0:masters-1],
-    input master_write_resp_push_to_fifo [0:masters-1],
+    input [masters-1:0] master_write_resp_push_to_fifo,
     output slave_write_resp_fifo_empty,
     output [$clog2(masters)-1:0] write_resp_return_dest_master,
 
