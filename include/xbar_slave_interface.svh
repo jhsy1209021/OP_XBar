@@ -6,7 +6,7 @@
 
     `ifndef FIFOS
     `define FIFOS
-        `include "async_fifo_8.svh"
+        `include "async_fifo.svh"
         `include "ar_fifo.sv"
         `include "aw_fifo.sv"
         `include "b_fifo.sv"

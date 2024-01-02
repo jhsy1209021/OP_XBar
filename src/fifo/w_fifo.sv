@@ -3,7 +3,9 @@ module w_fifo
 #(
     //XBar Setup
     parameter DATA_WIDTH = 32,
-    parameter STRB_WIDTH = 3
+    parameter STRB_WIDTH = 3,
+
+    parameter pending_depth = 8
 )
 //Ports
 (
@@ -30,8 +32,9 @@ module w_fifo
     output                       front_WLAST
 );
 //Instantiate async_fifo
-async_fifo_8 #(
-    .DATA_WIDTH(DATA_WIDTH + STRB_WIDTH + 1)
+async_fifo #(
+    .DATA_WIDTH(DATA_WIDTH + STRB_WIDTH + 1),
+    .pointer_width($clog2(pending_depth))
 ) async_w_fifo_8 (
     //Clock
     .clk_tx(clk_tx),

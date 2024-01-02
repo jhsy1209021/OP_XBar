@@ -2,7 +2,9 @@ module b_fifo
 //Parameters
 #(
     //XBar Setup
-    parameter ID_WIDTH = 4 
+    parameter ID_WIDTH = 4,
+
+    parameter pending_depth = 8
 )
 //Ports
 (
@@ -27,8 +29,9 @@ module b_fifo
     output [1:0]                 front_BRESP
 );
 //Instantiate async_fifo
-async_fifo_8 #(
-    .DATA_WIDTH(ID_WIDTH + 2)
+async_fifo #(
+    .DATA_WIDTH(ID_WIDTH + 2),
+    .pointer_width($clog2(pending_depth))
 ) async_b_fifo_8 (
     //Clock
     .clk_tx(clk_tx),

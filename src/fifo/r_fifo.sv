@@ -3,7 +3,9 @@ module r_fifo
 #(
     //XBar Setup
     parameter ID_WIDTH = 4,
-    parameter DATA_WIDTH = 32
+    parameter DATA_WIDTH = 32,
+
+    parameter pending_depth = 8
 )
 //Ports
 (
@@ -32,8 +34,9 @@ module r_fifo
     output                       front_RLAST
 );
 //Instantiate async_fifo
-async_fifo_8 #(
-    .DATA_WIDTH(ID_WIDTH + DATA_WIDTH + 2 + 1)
+async_fifo #(
+    .DATA_WIDTH(ID_WIDTH + DATA_WIDTH + 2 + 1),
+    .pointer_width($clog2(pending_depth))
 ) async_r_fifo_8 (
     //Clock
     .clk_tx(clk_tx),

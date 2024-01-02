@@ -5,7 +5,9 @@ module ar_fifo
     parameter ID_WIDTH = 4,
     parameter ADDR_WIDTH = 32,
     parameter LEN_WIDTH = 4,
-    parameter SIZE_WIDTH = 3
+    parameter SIZE_WIDTH = 3,
+
+    parameter pending_depth = 8
 )
 //Ports
 (
@@ -36,8 +38,9 @@ module ar_fifo
     output [1:0]                front_ARBURST
 );
 //Instantiate async_fifo
-async_fifo_8 #(
-    .DATA_WIDTH(ID_WIDTH + ADDR_WIDTH + LEN_WIDTH + SIZE_WIDTH + 2)
+async_fifo #(
+    .DATA_WIDTH(ID_WIDTH + ADDR_WIDTH + LEN_WIDTH + SIZE_WIDTH + 2),
+    .pointer_width($clog2(pending_depth))
 ) async_ar_fifo_8 (
     //Clock
     .clk_tx(clk_tx),

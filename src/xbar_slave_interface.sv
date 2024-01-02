@@ -9,6 +9,7 @@ module xbar_slave_interface
     parameter DATA_WIDTH = 32,
     parameter STRB_WIDTH = 4,
 
+    parameter pending_depth = 8,
     parameter masters = 2,
     parameter slaves = 2,
     parameter i_am_master_number = 0,
@@ -164,7 +165,9 @@ ar_fifo#(
     .ID_WIDTH(ID_WIDTH),
     .ADDR_WIDTH(ADDR_WIDTH),
     .LEN_WIDTH(LEN_WIDTH),
-    .SIZE_WIDTH(SIZE_WIDTH)
+    .SIZE_WIDTH(SIZE_WIDTH),
+
+    .pending_depth(pending_depth)
 ) master_forward_ar_fifo (
     //Global Signal
     .clk_tx(clk_ex_master),
@@ -202,7 +205,9 @@ aw_fifo#(
     .ID_WIDTH(ID_WIDTH),
     .ADDR_WIDTH(ADDR_WIDTH),
     .LEN_WIDTH(LEN_WIDTH),
-    .SIZE_WIDTH(SIZE_WIDTH)
+    .SIZE_WIDTH(SIZE_WIDTH),
+
+    .pending_depth(pending_depth)
 ) master_forward_aw_fifo (
     //Global Signal
     .clk_tx(clk_ex_master),
@@ -234,7 +239,9 @@ aw_fifo#(
 assign RVALID_M = ~master_read_data_fifo_empty;
 r_fifo #(
     .ID_WIDTH(ID_WIDTH),
-    .DATA_WIDTH(DATA_WIDTH)
+    .DATA_WIDTH(DATA_WIDTH),
+
+    .pending_depth(pending_depth)
 ) slave_return_r_fifo (
     //Global Signal
     .clk_tx(ACLK),
@@ -266,7 +273,9 @@ assign WREADY_M = ~master_write_data_fifo_full;
 assign master_write_data_fifo_empty = (_master_write_data_fifo_empty | (~current_write_op[0]));
 w_fifo #(
     .DATA_WIDTH(DATA_WIDTH),
-    .STRB_WIDTH(STRB_WIDTH)
+    .STRB_WIDTH(STRB_WIDTH),
+
+    .pending_depth(pending_depth)
 ) master_forward_w_fifo (
     //Global Signal
     .clk_tx(clk_ex_master),
@@ -293,7 +302,9 @@ w_fifo #(
 
 assign BVALID_M = ~master_write_resp_fifo_empty;
 b_fifo #(
-    .ID_WIDTH(ID_WIDTH)
+    .ID_WIDTH(ID_WIDTH),
+
+    .pending_depth(pending_depth)
 ) slave_return_b_fifo (
     //Global Signal
     .clk_tx(ACLK),

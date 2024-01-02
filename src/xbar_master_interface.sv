@@ -9,6 +9,7 @@ module xbar_master_interface
     parameter DATA_WIDTH = 32,
     parameter STRB_WIDTH = 4,
 
+    parameter pending_depth = 8,
     parameter masters = 2,
     parameter slaves = 2,
     parameter i_am_slave_number = 0
@@ -157,7 +158,9 @@ ar_fifo#(
     .ID_WIDTH(IDS_WIDTH),
     .ADDR_WIDTH(ADDR_WIDTH),
     .LEN_WIDTH(LEN_WIDTH),
-    .SIZE_WIDTH(SIZE_WIDTH)
+    .SIZE_WIDTH(SIZE_WIDTH),
+
+    .pending_depth(pending_depth)
 ) master_forward_ar_fifo (
     //Global Signal
     .clk_tx(ACLK),
@@ -192,7 +195,9 @@ aw_fifo#(
     .ID_WIDTH(IDS_WIDTH),
     .ADDR_WIDTH(ADDR_WIDTH),
     .LEN_WIDTH(LEN_WIDTH),
-    .SIZE_WIDTH(SIZE_WIDTH)
+    .SIZE_WIDTH(SIZE_WIDTH),
+
+    .pending_depth(pending_depth)
 ) master_forward_aw_fifo (
     //Global Signal
     .clk_tx(ACLK),
@@ -227,7 +232,9 @@ assign RID = front_most_RID[ID_WIDTH-1:0];
 assign salve_read_data_fifo_pop = ~master_read_data_fifo_full & some_masters_read_data_grant_me & some_masters_read_data_push_to_fifo;
 r_fifo #(
     .ID_WIDTH(IDS_WIDTH),
-    .DATA_WIDTH(DATA_WIDTH)
+    .DATA_WIDTH(DATA_WIDTH),
+
+    .pending_depth(pending_depth)
 ) slave_return_r_fifo (
     //Global Signal
     .clk_tx(clk_ex_slave),
@@ -258,7 +265,9 @@ assign WVALID_S = ~slave_write_data_fifo_empty;
 assign slave_write_data_fifo_full = (_slave_write_data_fifo_full | (~current_write_op[0]));
 w_fifo #(
     .DATA_WIDTH(DATA_WIDTH),
-    .STRB_WIDTH(STRB_WIDTH)
+    .STRB_WIDTH(STRB_WIDTH),
+
+    .pending_depth(pending_depth)
 ) master_forward_w_fifo (
     //Global Signal
     .clk_tx(ACLK),
@@ -288,7 +297,9 @@ assign BID = front_most_BID[ID_WIDTH-1:0];
 // Pop when (master resp_fifo is not full) & (some masters grant me) & (some masters says... Push tihs to fifo)
 assign slave_write_resp_fifo_pop = ~master_write_resp_fifo_full & some_masters_write_resp_grant_me & some_masters_write_resp_push_to_fifo;
 b_fifo #(
-    .ID_WIDTH(IDS_WIDTH)
+    .ID_WIDTH(IDS_WIDTH),
+
+    .pending_depth(pending_depth)
 ) slave_return_b_fifo (
     //Global Signal
     .clk_tx(clk_ex_slave),

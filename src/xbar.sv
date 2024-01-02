@@ -9,6 +9,7 @@ module xbar
     parameter DATA_WIDTH = 32,
     parameter STRB_WIDTH = 4,
 
+    parameter pending_depth = 8,
     parameter masters = 2,
     parameter slaves = 2,
     parameter [0:slaves-1] [ADDR_WIDTH-1:0] address_map_base = {32'h0000_0000, 32'h1000_0000},
@@ -221,6 +222,7 @@ generate
             .DATA_WIDTH(DATA_WIDTH),
             .STRB_WIDTH(STRB_WIDTH),
 
+            .pending_depth(pending_depth),
             .masters(masters),
             .slaves(slaves),
             .i_am_master_number(number_of_master),
@@ -353,6 +355,7 @@ generate
             .DATA_WIDTH(DATA_WIDTH),
             .STRB_WIDTH(STRB_WIDTH),
 
+            .pending_depth(pending_depth),
             .masters(masters),
             .slaves(slaves),
             .i_am_slave_number(number_of_slave)
