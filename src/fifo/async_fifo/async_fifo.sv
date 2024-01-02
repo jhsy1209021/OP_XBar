@@ -1,6 +1,7 @@
-module async_fifo_8
+module async_fifo
 #(
-    parameter DATA_WIDTH = 32
+    parameter DATA_WIDTH = 32,
+    parameter pointer_width = 3
 )
 (
     //Clock
@@ -20,21 +21,21 @@ module async_fifo_8
 );
 /**********Definitions**********/
 ///////////     Tx    ///////////
-wire [3:0] graycoded_write_pointer;
-wire [3:0] synced_graycoded_write_pointer;
-wire [2:0] write_pointer;
-reg [DATA_WIDTH-1:0] fifo_reg [0:7];
+wire [pointer_width:0] graycoded_write_pointer;
+wire [pointer_width:0] synced_graycoded_write_pointer;
+wire [pointer_width-1:0] write_pointer;
+reg [DATA_WIDTH-1:0] fifo_reg [0:(2**pointer_width)-1];
 
 ///////////     Rx    ///////////
-wire [3:0] graycoded_read_pointer;
-wire [3:0] synced_graycoded_read_pointer;
-wire [2:0] read_pointer;
+wire [pointer_width:0] graycoded_read_pointer;
+wire [pointer_width:0] synced_graycoded_read_pointer;
+wire [pointer_width-1:0] read_pointer;
 /**********Definitions**********/
 
 //FIFO -- Tx
 always@(posedge clk_tx) begin
     if(~nrst_tx) begin
-        for(int i = 0; i < 8; i++)
+        for(int i = 0; i < (2**pointer_width); i++)
             fifo_reg[i] <= {DATA_WIDTH{1'b0}};
     end
 
@@ -48,7 +49,9 @@ end
 assign DO_rx = fifo_reg[read_pointer];
 
 //Write Pointer Handler -- Tx
-write_pointer_handler write_pointer_handler0(
+write_pointer_handler #(
+    .pointer_width(pointer_width)
+) write_pointer_handler0 (
     .clk_tx(clk_tx),
     .nrst_tx(nrst_tx),
     .push(push_tx),
@@ -60,7 +63,9 @@ write_pointer_handler write_pointer_handler0(
 );
 
 //Read Pointer Handler -- Rx
-read_pointer_handler read_pointer_handler0(
+read_pointer_handler #(
+    .pointer_width(pointer_width)
+) read_pointer_handler0 (
     .clk_rx(clk_rx),
     .nrst_rx(nrst_rx),
     .pop(pop_rx),
@@ -72,7 +77,9 @@ read_pointer_handler read_pointer_handler0(
 );
 
 //////////////////// CDC Region ////////////////////
-synchronizer_3 write_to_read(
+synchronizer #(
+    .width(pointer_width+1)
+) write_to_read(
     .clk(clk_rx),
     .nrst(nrst_rx),
     
@@ -82,7 +89,9 @@ synchronizer_3 write_to_read(
     .sync_data(synced_graycoded_write_pointer)
 );
 
-synchronizer_3 read_to_write(
+synchronizer #(
+    .width(pointer_width+1)
+) read_to_write(
     .clk(clk_tx),
     .nrst(nrst_tx),
     
