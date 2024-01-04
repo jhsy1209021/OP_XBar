@@ -398,7 +398,7 @@ always@(posedge ACLK) begin
     else begin
         if(~master_write_addr_fifo_empty & ~slave_write_addr_fifo_full & some_slaves_write_addr_grant_me)
             current_write_op[0] <= 1'b1;
-        else if(WLAST)
+        else if(WLAST & (~slave_write_data_fifo_full) & (~master_write_data_fifo_empty) & current_write_op[0])
             current_write_op[0] <= 1'b0;
     end
 end
